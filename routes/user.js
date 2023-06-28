@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { createUser, createEvent, createBooking, createDetail, UserData, EventData, BookingData, UserpersonalData, UpdateUser, UpdateEvent, UpdateBooking, UserSpecificData, UserFilterData, bookingFilterData, deleteUserData, UserMatch } = require("../controller/userController")
+const { createUser, createEvent, createBooking, createDetail, UserData, EventData, BookingData, UserpersonalData,
+    UpdateUser, UpdateEvent, UpdateBooking, UserSpecificData, UserFilterData, bookingFilterData, deleteUserData,
+    UserMatch, UserLookup, Status, StatusData, UpdateStatusData } = require("../controller/userController")
 
 router.post(
     "/addDetail",
@@ -66,5 +68,21 @@ router.delete(
 router.get(
     "/aggregate/matchuser",
     UserMatch
+)
+router.get(
+    "/aggregate",
+    UserLookup
+)
+router.post(
+    "/create/status",
+    Status
+)
+router.get(
+    "/statusdata/:id",
+    StatusData
+)
+router.patch(
+    "/updatestatus",
+    UpdateStatusData
 )
 module.exports = router;

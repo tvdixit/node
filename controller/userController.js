@@ -2,6 +2,7 @@ const User = require("../model_Schema/userModel");
 const Event = require("../model_Schema/EventModel");
 const Booking = require("../model_Schema/bookingModel");
 const personalData = require("../model_Schema/personalSchema");
+const Userstatus = require("../model_Schema/subUserSchema")
 
 // User :
 const createUser = async (req, res) => {
@@ -213,6 +214,73 @@ const UserMatch = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+
+//aggragation lookup :
+const UserLookup = async (req, res) => {
+    try {
+        personalData.aggregate([
+            { $lookup: { from: "Event", localField: "city", foreignField: "age", as: "gender" } },
+        ]).then((data) => {
+            res.json(data)
+        })
+            .exec()
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+
+// UserStatusSchema :
+const Status = async (req, res) => {
+    try {
+        const userdata = new Userstatus({
+            name: req.body.name,
+            description: req.body.description,
+            status: req.body.status,
+            date: req.body.date,
+            user_id: req.body.user_id,
+        })
+        const savedData = await userdata.save();
+        res.status(200).json(savedData);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+//User data get:
+const StatusData = async (req, res) => {
+    try {
+        const data = await Userstatus.findById(req.params.id).populate("user_id")
+        res.json({ success: true, message: "retrive data successfully", data })
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+// Update UserStatus DATA :
+const UpdateStatusData = async (req, res) => {
+    try {
+        const updatedData = req.body
+        await Userstatus.findOneAndUpdate({ _id: req.body._id },
+            updatedData).then(async (data) => {
+                var item = await Userstatus.findById(data._id).populate("user_id").populate({
+                    path: 'user_id',
+                    populate: {
+                        path: "createdEvent",
+                    }
+                }).populate({
+                    path: 'user_id',
+                    populate: {
+                        path: "personalDetail",
+                    }
+                });
+                res.send(item)
+            })
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+//
 module.exports = {
     createUser,
     createEvent,
@@ -230,4 +298,8 @@ module.exports = {
     bookingFilterData,
     deleteUserData,
     UserMatch,
+    UserLookup,
+    Status,
+    StatusData,
+    UpdateStatusData
 }
