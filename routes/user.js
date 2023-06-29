@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const { createUser, createEvent, createBooking, createDetail, UserData, EventData, BookingData, UserpersonalData,
-    UpdateUser, UpdateEvent, UpdateBooking, UserSpecificData, UserFilterData, bookingFilterData, deleteUserData,
-    UserMatch, UserLookup, Status, StatusData, UpdateStatusData } = require("../controller/userController")
-
+const { createUser, UserData, UserpersonalData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup, } = require("../controller/userController")
+const { createEvent, EventData, UpdateEvent } = require("../controller/eventController");
+const { createBooking, BookingData, bookingFilterData, UpdateBooking } = require("../controller/bookingController");
+const { createDetail } = require("../controller/personaldtlController");
+const { Status, StatusData, UpdateStatusData, statusMatch, taskLookup, tasknelookup } = require("../controller/taskController");
 router.post(
     "/addDetail",
     createUser
@@ -73,6 +74,14 @@ router.get(
     "/aggregate",
     UserLookup
 )
+router.get(
+    "/task/lookup",
+    taskLookup
+)
+router.get(
+    "/task/ne/lookup",
+    tasknelookup
+)
 router.post(
     "/create/status",
     Status
@@ -84,5 +93,9 @@ router.get(
 router.patch(
     "/updatestatus",
     UpdateStatusData
+)
+router.get(
+    "/check/status",
+    statusMatch
 )
 module.exports = router;

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const UserstatusSchema = new mongoose.Schema({
-    name: {
+const taskManagement = new mongoose.Schema({
+    first_name: {
         type: String,
         required: true,
     },
@@ -22,4 +22,4 @@ const UserstatusSchema = new mongoose.Schema({
         ref: 'User'
     }
 });
-module.exports = mongoose.model('task', UserstatusSchema)
+module.exports = mongoose.model('task', taskManagement)

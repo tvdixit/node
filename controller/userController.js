@@ -1,8 +1,4 @@
 const User = require("../model_Schema/userModel");
-const Event = require("../model_Schema/EventModel");
-const Booking = require("../model_Schema/bookingModel");
-const personalData = require("../model_Schema/personalSchema");
-const Userstatus = require("../model_Schema/subUserSchema")
 
 // User :
 const createUser = async (req, res) => {
@@ -17,55 +13,6 @@ const createUser = async (req, res) => {
         })
         const savedDetail = await userdata.save();
         const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        res.status(200).json(savedDetail);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-
-// Event:
-const createEvent = async (req, res) => {
-    try {
-        const eventdata = new Event({
-            title: req.body.title,
-            description: req.body.description,
-            price: req.body.price,
-            date: req.body.date,
-            creator: req.body.creator,
-        })
-        const savedDetail = await eventdata.save();
-        console.log(savedDetail);
-        const data = await Event.findByIdAndUpdate(req.body.creator, { creator: savedDetail.id });
-        res.status(200).json(savedDetail);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-
-// Booking :
-const createBooking = async (req, res) => {
-    try {
-        const bookingdata = new Booking({
-            event: req.body.event,
-            user: req.body.user
-        })
-        const savedDetail = await bookingdata.save();
-        const eventdata = await Booking.findByIdAndUpdate(req.body, { Event: savedDetail.id }, { User: savedDetail.id });
-        res.status(200).json(savedDetail);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-
-const createDetail = async (req, res) => {
-    try {
-        const data = new personalData({
-            phone: req.body.phone,
-            gender: req.body.gender,
-            age: req.body.age,
-            city: req.body.city
-        });
-        const savedDetail = await data.save();
         res.status(200).json(savedDetail);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -101,41 +48,6 @@ const UserFilterData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-// get booking all data filter :
-const bookingFilterData = async (req, res) => {
-    try {
-        const data = await Booking.find().populate("event", { date: 1, price: 1, title: 1 }).populate("user", { first_name: 1, last_name: 1 });
-        res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
-// get eventdata api
-const EventData = async (req, res) => {
-    try {
-        const data = await Event.findById(req.params.id).populate("creator");
-        res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
-// get Booking api :
-const BookingData = async (req, res) => {
-    try {
-        const data = await Booking.findById(req.params.id).populate("event").populate({
-            path: 'user',
-            populate: {
-                path: 'personalDetail'
-            }
-        });
-        res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
 // get personal information :
 const UserpersonalData = async (req, res) => {
     try {
@@ -153,34 +65,6 @@ const UpdateUser = async (req, res) => {
         await User.findOneAndUpdate({ _id: req.body._id },
             updatedData).then(async (data) => {
                 var item = await User.findById(data._id);
-                res.send(item)
-            })
-    }
-    catch (error) {
-        res.status(400).json({ message: error.message })
-    }
-}
-// Update Event api :
-const UpdateEvent = async (req, res) => {
-    try {
-        const updatedData = req.body
-        await Event.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await Event.findById(data._id);
-                res.send(item)
-            })
-    }
-    catch (error) {
-        res.status(400).json({ message: error.message })
-    }
-}
-// Update Booking api :
-const UpdateBooking = async (req, res) => {
-    try {
-        const updatedData = req.body
-        await Booking.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await Booking.findById(data._id);
                 res.send(item)
             })
     }
@@ -214,92 +98,27 @@ const UserMatch = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 //aggragation lookup :
 const UserLookup = async (req, res) => {
     try {
         personalData.aggregate([
-            { $lookup: { from: "Event", localField: "city", foreignField: "age", as: "gender" } },
+            { $lookup: { from: "Event", localField: "city", foreignField: "city", as: "gender" } },
         ]).then((data) => {
             res.json(data)
         })
-            .exec()
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
-
-// UserStatusSchema :
-const Status = async (req, res) => {
-    try {
-        const userdata = new Userstatus({
-            name: req.body.name,
-            description: req.body.description,
-            status: req.body.status,
-            date: req.body.date,
-            user_id: req.body.user_id,
-        })
-        const savedData = await userdata.save();
-        res.status(200).json(savedData);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-//User data get:
-const StatusData = async (req, res) => {
-    try {
-        const data = await Userstatus.findById(req.params.id).populate("user_id")
-        res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
-// Update UserStatus DATA :
-const UpdateStatusData = async (req, res) => {
-    try {
-        const updatedData = req.body
-        await Userstatus.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await Userstatus.findById(data._id).populate("user_id").populate({
-                    path: 'user_id',
-                    populate: {
-                        path: "createdEvent",
-                    }
-                }).populate({
-                    path: 'user_id',
-                    populate: {
-                        path: "personalDetail",
-                    }
-                });
-                res.send(item)
-            })
-    }
-    catch (error) {
-        res.status(400).json({ message: error.message })
-    }
-}
-//
 module.exports = {
     createUser,
-    createEvent,
-    createBooking,
-    createDetail,
     UserData,
-    EventData,
-    BookingData,
     UserpersonalData,
     UpdateUser,
-    UpdateEvent,
-    UpdateBooking,
     UserSpecificData,
     UserFilterData,
-    bookingFilterData,
     deleteUserData,
     UserMatch,
     UserLookup,
-    Status,
-    StatusData,
-    UpdateStatusData
 }

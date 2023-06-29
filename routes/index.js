@@ -3,4 +3,11 @@ const createEvent = require("./user");
 const createBooking = require("./user");
 const UserMatch = require("./user");
 const subUser = require("./user");
-module.exports = { createUser, createEvent, createBooking, UserMatch, subUser };
+
+module.exports = {
+    createUser,
+    createEvent,
+    createBooking,
+    UserMatch,
+    subUser
+};
