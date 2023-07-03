@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const { createUser, UserData, UserpersonalData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup, } = require("../controller/userController")
+const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup, } = require("../controller/userController")
 const { createEvent, EventData, UpdateEvent } = require("../controller/eventController");
 const { createBooking, BookingData, bookingFilterData, UpdateBooking } = require("../controller/bookingController");
-const { createDetail } = require("../controller/personaldtlController");
-const { Status, StatusData, UpdateStatusData, statusMatch, taskLookup, tasknelookup } = require("../controller/taskController");
+const { createDetail, UserpersonalData } = require("../controller/personaldtlController");
+const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup } = require("../controller/taskController");
 router.post(
     "/addDetail",
     createUser
@@ -21,6 +21,10 @@ router.post(
 router.post(
     "/addPersonaldetail",
     createDetail
+)
+router.get(
+    "/personalData/:id",
+    UserpersonalData
 )
 router.get(
     "/userdata/:id",
@@ -45,10 +49,6 @@ router.get(
 router.get(
     "/bookingfilter",
     bookingFilterData
-)
-router.get(
-    "/personalData/:id",
-    UserpersonalData
 )
 router.patch(
     "/updateUser",
@@ -87,12 +87,12 @@ router.post(
     Status
 )
 router.get(
-    "/statusdata/:id",
-    StatusData
+    "/taskdata/:id",
+    TaskData
 )
 router.patch(
     "/updatestatus",
-    UpdateStatusData
+    UpdateTaskData
 )
 router.get(
     "/check/status",

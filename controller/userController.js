@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const User = require("../model_Schema/userModel");
 
 // User :
@@ -11,9 +12,10 @@ const createUser = async (req, res) => {
             createdEvent: req.body.createdEvent,
             personalDetail: req.body.personalDetail
         })
+        const token = jwt.sign({ data }, 'your_secret_key');
         const savedDetail = await userdata.save();
         const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        res.status(200).json(savedDetail);
+        res.status(200).json({ savedDetail, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -21,13 +23,16 @@ const createUser = async (req, res) => {
 // get Userdata api :
 const UserData = async (req, res) => {
     try {
+        const userId = req.params.id;
+        const token = jwt.sign({ userId }, 'your_secret_key');
         const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
-        res.json({ success: true, message: "retrive data successfully", data })
+        res.json({ success: true, message: "retrive data successfully", data, token })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
+
 // get user api using filter :
 const UserSpecificData = async (req, res) => {
     try {

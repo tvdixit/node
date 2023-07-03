@@ -20,6 +20,9 @@ const taskManagement = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    token: {
+        type: String,
+    },
 });
 module.exports = mongoose.model('task', taskManagement)

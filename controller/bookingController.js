@@ -1,4 +1,5 @@
 const Booking = require("../model_Schema/bookingModel");
+const jwt = require("jsonwebtoken")
 
 const createBooking = async (req, res) => {
     try {
@@ -6,9 +7,10 @@ const createBooking = async (req, res) => {
             event: req.body.event,
             user: req.body.user
         })
+        const token = jwt.sign({ data }, 'your_secret_key');
         const savedDetail = await bookingdata.save();
         const eventdata = await Booking.findByIdAndUpdate(req.body, { Event: savedDetail.id }, { User: savedDetail.id });
-        res.status(200).json(savedDetail);
+        res.status(200).json({ savedDetail, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -16,13 +18,15 @@ const createBooking = async (req, res) => {
 // booking data
 const BookingData = async (req, res) => {
     try {
+        const userId = req.params.id;
+        const token = jwt.sign({ userId }, 'your_secret_key');
         const data = await Booking.findById(req.params.id).populate("event").populate({
             path: 'user',
             populate: {
                 path: 'personalDetail'
             }
         });
-        res.json({ success: true, message: "retrive data successfully", data })
+        res.json({ success: true, message: "retrive data successfully", data, token })
     }
     catch (error) {
         res.status(500).json({ message: error.message })

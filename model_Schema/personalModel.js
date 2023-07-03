@@ -16,7 +16,10 @@ const personalSchema = new mongoose.Schema({
     city: {
         type: String,
         required: true,
-    }
+    },
+    token: {
+        type: String,
+    },
 });
 module.exports = mongoose.model('personal', personalSchema)
 

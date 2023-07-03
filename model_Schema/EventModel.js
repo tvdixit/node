@@ -21,6 +21,9 @@ const EventSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    token: {
+        type: String,
+    },
 });
 
 module.exports = mongoose.model('Event', EventSchema)

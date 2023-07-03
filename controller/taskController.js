@@ -1,26 +1,44 @@
-const Userstatus = require("../model_Schema/taskModel")
+const UserTask = require("../model_Schema/taskModel")
+const jwt = require("jsonwebtoken")
+
+const pops = () => {
+    populate({
+        path: 'user_id',
+        populate: {
+            path: "createdEvent",
+        }
+    }).populate({
+        path: 'user_id',
+        populate: {
+            path: "personalDetail",
+        }
+    });
+}
 
 // UserStatusSchema :
 const Status = async (req, res) => {
     try {
-        const userdata = new Userstatus({
+        const userdata = new UserTask({
             first_name: req.body.first_name,
             description: req.body.description,
             status: req.body.status,
             date: req.body.date,
             user_id: req.body.user_id,
         })
+        const token = jwt.sign({ data }, 'your_secret_key');
         const savedData = await userdata.save();
-        res.status(200).json(savedData);
+        res.status(200).json({ savedData, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
 
 //User data get:
-const StatusData = async (req, res) => {
+const TaskData = async (req, res) => {
     try {
-        const data = await Userstatus.findById(req.params.id).populate("user_id").populate({
+        const userId = req.params.id;
+        const token = jwt.sign({ userId }, 'your_secret_key');
+        const data = await UserTask.findById(req.params.id).populate("user_id").populate({
             path: 'user_id',
             populate: {
                 path: "createdEvent",
@@ -30,22 +48,21 @@ const StatusData = async (req, res) => {
             populate: {
                 path: "personalDetail",
             }
-        });
-        res.json({ success: true, message: "retrive data successfully", data })
+        })
+        res.json({ success: true, message: "retrive data successfully", data, token })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
 
-
 // Update UserStatus DATA :
-const UpdateStatusData = async (req, res) => {
+const UpdateTaskData = async (req, res) => {
     try {
         const updatedData = req.body
-        await Userstatus.findOneAndUpdate({ _id: req.body._id },
+        await UserTask.findOneAndUpdate({ _id: req.body._id },
             updatedData).then(async (data) => {
-                var item = await Userstatus.findById(data._id).populate("user_id").populate({
+                var item = await UserTask.findById(data._id).populate("user_id").populate({
                     path: 'user_id',
                     populate: {
                         path: "createdEvent",
@@ -67,7 +84,7 @@ const UpdateStatusData = async (req, res) => {
 // aggregate match status :
 const statusMatch = async (req, res) => {
     try {
-        Userstatus.aggregate([
+        UserTask.aggregate([
             { $match: { status: req.body.status } },
         ]).then((data) => {
             res.json(data)
@@ -81,7 +98,7 @@ const statusMatch = async (req, res) => {
 // aggragation lookup -- 
 const taskLookup = async (req, res) => {
     try {
-        const data = await Userstatus.aggregate([
+        const data = await UserTask.aggregate([
             { $lookup: { from: "users", localField: "first_name", foreignField: "first_name", as: "user" } },
         ])
         res.json(data)
@@ -94,7 +111,7 @@ const taskLookup = async (req, res) => {
 // aggregation looksup and use ne means not equal :
 const tasknelookup = async (req, res) => {
     try {
-        const data = await Userstatus.aggregate([
+        const data = await UserTask.aggregate([
             { $lookup: { from: "users", localField: "first_name", foreignField: "first_name", as: "user" } },
             { $match: { "user": { $ne: [] } } }
         ])
@@ -106,8 +123,8 @@ const tasknelookup = async (req, res) => {
 }
 module.exports = {
     Status,
-    StatusData,
-    UpdateStatusData,
+    TaskData,
+    UpdateTaskData,
     statusMatch,
     taskLookup,
     tasknelookup
