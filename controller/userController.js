@@ -1,8 +1,11 @@
 const User = require("../model_Schema/userModel");
 const jwt = require("jsonwebtoken");
 const secretKey = 'yourSecretKey';
-const express = require('express');
-const router = express.Router();
+// const usertoken = req.headers.authorization;
+// const token = usertoken.split(' ');
+// const decoded = jwt.verify(token[1], 'secret-key');
+// console.log(decoded);
+
 
 // User :
 const createUser = async (req, res) => {
@@ -17,7 +20,7 @@ const createUser = async (req, res) => {
         })
         const savedDetail = await userdata.save();
         const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        const token = jwt.sign({ data }, secretKey, { expiresIn: '200s' });
+        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
         jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {
                 if (err.name === 'TokenExpiredError') {
@@ -38,7 +41,7 @@ const createUser = async (req, res) => {
 const UserData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: "300s" }, "your_secret_key");
+        const token = jwt.sign({ userId }, secretKey, { expiresIn: "3000s" });
 
         const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
         res.json({ success: true, message: "retrive data successfully", data, token })
@@ -56,21 +59,63 @@ const UserData = async (req, res) => {
 //         req.token = bearerToken;
 //         next()
 //     } else {
-//         res.sendStatus(403);
+//         res.sendStatus(401);// forbidden
+//     }
+// }
+
+
+// const verifyToken = (req, res) => {
+//     jwt.verify(req.token, "secretKey", (err, authData) => {
+//         if (err) {
+//             res.sendStatus(401); // forbidden
+//         } else {
+//             res.json({
+//                 message: "post created...",
+//                 authData
+//             });
+//         }
+//     });
+// }
+
+
+// const verifyToken = (req, res) => {
+//     // // let authorization = process.env.TOKEN_HEADER_KEY;
+//     // // let jwtSecretKey = process.env.JWT_SECRET_KEY;
+//     try {
+//         const token = req.header("authorization");
+//         // // const decodedToken = jwt.decode(token, { complete: true }); //
+//         // // console.log(decodedToken);  //
+
+//        //  // const tokenData = decodedToken.payload; //
+//         // // console.log(tokenData); //
+//         console.log(token)
+
+//         const verified = jwt.verify(token, secretKey);
+//         console.log(verified);
+//         if (verified) {
+//             return res.send("Successfully Verified",);
+//         } else {
+//             return res.status(401).send("no token provided");
+//         }
+//     } catch (error) {
+//         return res.status(401).send(error);
 //     }
 // }
 const verifyToken = (req, res) => {
-    jwt.verify(req.token, "secretKey", (err, authData) => {
-        if (err) {
-            res.sendStatus(403);
-        } else {
-            res.json({
-                message: "post created...",
-                authData
-            });
-        }
-    });
-}
+    const { authorization } = req.headers;
+    if (!authorization) {
+        return res.sendStatus(403);
+    }
+    const token = authorization.split(" ")[1];
+    try {
+        const data = jwt.verify(token, "YOUR_256_BIT_SECRET_KEY");
+        req.userId = data.id;
+        req.userRole = data.role;
+        return next();
+    } catch {
+        return res.sendStatus(403);
+    }
+};
 
 // get user api using filter :
 const UserSpecificData = async (req, res) => {

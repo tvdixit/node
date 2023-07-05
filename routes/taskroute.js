@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup } = require("../controller/taskController");
+const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup, verifyToken } = require("../controller/taskController");
 
 router.post(
     "/create/status",
@@ -27,7 +27,10 @@ router.get(
     "/task/ne/lookup",
     tasknelookup
 )
-
+router.post(
+    "/verifytoken",
+    verifyToken,
+)
 module.exports = {
     route: router
 };

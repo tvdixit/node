@@ -1,5 +1,6 @@
 const Booking = require("../model_Schema/bookingModel");
 const jwt = require("jsonwebtoken")
+const secretKey = 'yourSecretKey';
 
 const createBooking = async (req, res) => {
     try {
@@ -7,7 +8,7 @@ const createBooking = async (req, res) => {
             event: req.body.event,
             user: req.body.user
         })
-        const token = jwt.sign({ data }, 'your_secret_key');
+        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
         const savedDetail = await bookingdata.save();
         const eventdata = await Booking.findByIdAndUpdate(req.body, { Event: savedDetail.id }, { User: savedDetail.id });
         res.status(200).json({ savedDetail, token });
@@ -19,7 +20,7 @@ const createBooking = async (req, res) => {
 const BookingData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, 'your_secret_key');
+        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
         const data = await Booking.findById(req.params.id).populate("event").populate({
             path: 'user',
             populate: {
@@ -58,9 +59,25 @@ const UpdateBooking = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
+const verifyToken = (req, res) => {
+    try {
+        const token = req.header("authorization");
+        console.log(token)
+        const verified = jwt.verify(token, secretKey);
+        console.log(verified);
+        if (verified) {
+            return res.send("Successfully Verified");
+        } else {
+            return res.status(401).send(error);
+        }
+    } catch (error) {
+        return res.status(401).send(error);
+    }
+}
 module.exports = {
     createBooking,
     BookingData,
     bookingFilterData,
-    UpdateBooking
+    UpdateBooking,
+    verifyToken
 }

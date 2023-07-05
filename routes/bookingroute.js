@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createBooking, BookingData, bookingFilterData, UpdateBooking } = require("../controller/bookingController");
+const { createBooking, BookingData, bookingFilterData, UpdateBooking, verifyToken } = require("../controller/bookingController");
 
 router.post(
     "/booking",
@@ -18,6 +18,10 @@ router.get(
 router.patch(
     "/updateBooking",
     UpdateBooking
+)
+router.post(
+    "/verifytoken",
+    verifyToken,
 )
 module.exports = {
     route: router

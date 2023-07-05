@@ -1,5 +1,6 @@
 const UserTask = require("../model_Schema/taskModel")
 const jwt = require("jsonwebtoken")
+const secretKey = 'yourSecretKey';
 
 const pops = () => {
     populate({
@@ -25,7 +26,7 @@ const Status = async (req, res) => {
             date: req.body.date,
             user_id: req.body.user_id,
         })
-        const token = jwt.sign({ data }, 'your_secret_key');
+        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
         const savedData = await userdata.save();
         res.status(200).json({ savedData, token });
     } catch (error) {
@@ -37,7 +38,7 @@ const Status = async (req, res) => {
 const TaskData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, 'your_secret_key');
+        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
         const data = await UserTask.findById(req.params.id).populate("user_id").populate({
             path: 'user_id',
             populate: {
@@ -121,13 +122,29 @@ const tasknelookup = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+const verifyToken = (req, res) => {
+    try {
+        const token = req.header("authorization");
+        console.log(token)
+        const verified = jwt.verify(token, secretKey);
+        console.log(verified);
+        if (verified) {
+            return res.send("Successfully Verified");
+        } else {
+            return res.status(401).send(error);
+        }
+    } catch (error) {
+        return res.status(401).send(error);
+    }
+}
 module.exports = {
     Status,
     TaskData,
     UpdateTaskData,
     statusMatch,
     taskLookup,
-    tasknelookup
+    tasknelookup,
+    verifyToken
 }
 
 // const UserData = async (req, res) => {
