@@ -31,5 +31,4 @@ const UserpersonalData = async (req, res) => {
 module.exports = {
     createDetail,
     UserpersonalData
-
 }

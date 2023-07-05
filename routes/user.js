@@ -1,34 +1,19 @@
 const express = require('express');
 const router = express.Router();
 
-const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup, } = require("../controller/userController")
-const { createEvent, EventData, UpdateEvent } = require("../controller/eventController");
-const { createBooking, BookingData, bookingFilterData, UpdateBooking } = require("../controller/bookingController");
-const { createDetail, UserpersonalData } = require("../controller/personaldtlController");
-const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup } = require("../controller/taskController");
+const { createUser, UserData, verifyToken, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
+
 router.post(
     "/addDetail",
-    createUser
-)
-router.post(
-    "/event",
-    createEvent
-)
-router.post(
-    "/booking",
-    createBooking
-)
-router.post(
-    "/addPersonaldetail",
-    createDetail
-)
-router.get(
-    "/personalData/:id",
-    UserpersonalData
+    createUser,
 )
 router.get(
     "/userdata/:id",
-    UserData
+    UserData,
+)
+router.post(
+    "/verifytoken",
+    verifyToken,
 )
 router.get(
     "/userspecificData/:id",
@@ -38,29 +23,9 @@ router.get(
     "/userFilter",
     UserFilterData
 )
-router.get(
-    "/eventdata/:id",
-    EventData
-)
-router.get(
-    "/bookingdata/:id",
-    BookingData
-)
-router.get(
-    "/bookingfilter",
-    bookingFilterData
-)
 router.patch(
     "/updateUser",
     UpdateUser
-)
-router.patch(
-    "/updateEvent",
-    UpdateEvent
-)
-router.patch(
-    "/updateBooking",
-    UpdateBooking
 )
 router.delete(
     "/deleteUser/:id",
@@ -74,28 +39,6 @@ router.get(
     "/aggregate",
     UserLookup
 )
-router.get(
-    "/task/lookup",
-    taskLookup
-)
-router.get(
-    "/task/ne/lookup",
-    tasknelookup
-)
-router.post(
-    "/create/status",
-    Status
-)
-router.get(
-    "/taskdata/:id",
-    TaskData
-)
-router.patch(
-    "/updatestatus",
-    UpdateTaskData
-)
-router.get(
-    "/check/status",
-    statusMatch
-)
-module.exports = router;
+module.exports = {
+    route: router
+};

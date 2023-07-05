@@ -129,3 +129,24 @@ module.exports = {
     taskLookup,
     tasknelookup
 }
+
+// const UserData = async (req, res) => {
+//     try {
+//         const userId = req.params.id;
+//         const token = jwt.sign({ userId }, secretKey, { expiresIn: "300s" }, 'your_secret_key');
+//         jwt.verify(token, secretKey, async (err, decode) => {
+//             if (err) {
+//                 if (err.name === 'TokenExpiredError') {
+//                     res.status(200).json({ success: false, message: 'token expired' });
+//                 } else {
+//                     res.status(200).json({ success: false, message: 'invalid token' });
+//                 }
+//             } else {
+//                 const data = await User.findById(userId).populate('createdEvent').populate('personalDetail');
+//                 res.json({ success: true, message: 'retrieve data successfully', data, token });
+//             }
+//         });
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: error.message });
+//     }
+// };

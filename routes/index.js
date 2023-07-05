@@ -1,13 +1,13 @@
 const createUser = require("./user");
-const createEvent = require("./user");
-const createBooking = require("./user");
-const UserMatch = require("./user");
-const subUser = require("./user");
+const createEvent = require("./eventroute");
+const createBooking = require("./bookingroute");
+const UserpersonalData = require("./personaldetailroute");
+const UserTask = require("./taskroute");
 
 module.exports = {
     createUser,
     createEvent,
     createBooking,
-    UserMatch,
-    subUser
+    UserpersonalData,
+    UserTask
 };

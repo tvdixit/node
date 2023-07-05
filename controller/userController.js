@@ -1,5 +1,8 @@
-const jwt = require("jsonwebtoken");
 const User = require("../model_Schema/userModel");
+const jwt = require("jsonwebtoken");
+const secretKey = 'yourSecretKey';
+const express = require('express');
+const router = express.Router();
 
 // User :
 const createUser = async (req, res) => {
@@ -12,25 +15,61 @@ const createUser = async (req, res) => {
             createdEvent: req.body.createdEvent,
             personalDetail: req.body.personalDetail
         })
-        const token = jwt.sign({ data }, 'your_secret_key');
         const savedDetail = await userdata.save();
         const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        res.status(200).json({ savedDetail, token });
+        const token = jwt.sign({ data }, secretKey, { expiresIn: '200s' });
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    res.status(200).json({ savedDetail, token, expired: true });
+                } else {
+                    res.status(200).json({ savedDetail, token, expired: false });
+                }
+            } else {
+                res.status(200).json({ savedDetail, token, expired: false });
+            }
+        });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
-// get Userdata api :
+
+// // get Userdata api:
 const UserData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, 'your_secret_key');
+        const token = jwt.sign({ userId }, secretKey, { expiresIn: "300s" }, "your_secret_key");
+
         const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
         res.json({ success: true, message: "retrive data successfully", data, token })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
+}
+
+// ......
+// const verifyToken = (req, res, next) => {
+//     const bearHeader = req.headers["Authorization"]
+//     if (typeof bearHeader !== "undefined") {
+//         const bearerToken = bearHeader.split(' ')[1]
+//         req.token = bearerToken;
+//         next()
+//     } else {
+//         res.sendStatus(403);
+//     }
+// }
+const verifyToken = (req, res) => {
+    jwt.verify(req.token, "secretKey", (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            res.json({
+                message: "post created...",
+                authData
+            });
+        }
+    });
 }
 
 // get user api using filter :
@@ -119,11 +158,12 @@ const UserLookup = async (req, res) => {
 module.exports = {
     createUser,
     UserData,
+    verifyToken,
     UserpersonalData,
     UpdateUser,
     UserSpecificData,
     UserFilterData,
     deleteUserData,
     UserMatch,
-    UserLookup,
+    UserLookup
 }
