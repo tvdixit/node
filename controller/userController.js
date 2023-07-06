@@ -1,11 +1,6 @@
 const User = require("../model_Schema/userModel");
 const jwt = require("jsonwebtoken");
 const secretKey = 'yourSecretKey';
-// const usertoken = req.headers.authorization;
-// const token = usertoken.split(' ');
-// const decoded = jwt.verify(token[1], 'secret-key');
-// console.log(decoded);
-
 
 // User :
 const createUser = async (req, res) => {
@@ -17,10 +12,13 @@ const createUser = async (req, res) => {
             password: req.body.password,
             createdEvent: req.body.createdEvent,
             personalDetail: req.body.personalDetail
+
         })
         const savedDetail = await userdata.save();
         const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign(data, secretKey, { expiresIn: '20000s' });
+        res.json({ token })
+
         jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {
                 if (err.name === 'TokenExpiredError') {
@@ -31,6 +29,7 @@ const createUser = async (req, res) => {
             } else {
                 res.status(200).json({ savedDetail, token, expired: false });
             }
+
         });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -40,10 +39,12 @@ const createUser = async (req, res) => {
 // // get Userdata api:
 const UserData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: "3000s" });
+        const userId = req.user.id;
 
-        const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
+        const data = await User.findById(userId).populate("createdEvent").populate("personalDetail");
+        const token = jwt.sign({ data }, secretKey, { expiresIn: "3000s" });
+        res.send(data, token)
+
         res.json({ success: true, message: "retrive data successfully", data, token })
     }
     catch (error) {
@@ -51,7 +52,7 @@ const UserData = async (req, res) => {
     }
 }
 
-// ......
+// ...... verify token
 // const verifyToken = (req, res, next) => {
 //     const bearHeader = req.headers["Authorization"]
 //     if (typeof bearHeader !== "undefined") {
@@ -76,46 +77,53 @@ const UserData = async (req, res) => {
 //         }
 //     });
 // }
-
-
-// const verifyToken = (req, res) => {
-//     // // let authorization = process.env.TOKEN_HEADER_KEY;
-//     // // let jwtSecretKey = process.env.JWT_SECRET_KEY;
-//     try {
-//         const token = req.header("authorization");
-//         // // const decodedToken = jwt.decode(token, { complete: true }); //
-//         // // console.log(decodedToken);  //
-
-//        //  // const tokenData = decodedToken.payload; //
-//         // // console.log(tokenData); //
-//         console.log(token)
-
-//         const verified = jwt.verify(token, secretKey);
-//         console.log(verified);
-//         if (verified) {
-//             return res.send("Successfully Verified",);
-//         } else {
-//             return res.status(401).send("no token provided");
-//         }
-//     } catch (error) {
-//         return res.status(401).send(error);
-//     }
-// }
 const verifyToken = (req, res) => {
-    const { authorization } = req.headers;
-    if (!authorization) {
-        return res.sendStatus(403);
-    }
-    const token = authorization.split(" ")[1];
     try {
-        const data = jwt.verify(token, "YOUR_256_BIT_SECRET_KEY");
-        req.userId = data.id;
-        req.userRole = data.role;
-        return next();
-    } catch {
-        return res.sendStatus(403);
+        const token = req.header("authorization");
+        console.log(token)
+
+        const verified = jwt.verify(token, secretKey);
+        console.log(verified);
+
+        if (verified) {
+            return res.send({ message: "Successfully Verified" });
+        } else {
+            return res.status(401).send({ message: "no token provided" });
+        }
+    } catch (error) {
+        return res.status(401).send(error);
     }
-};
+}
+// const verifyToken = (req, res) => {
+//     var token = req.headers['Authorization'];
+//     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+
+//     jwt.verify(token, config.secret, function (err, decoded) {
+//         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+//         res.status(200).send(decoded);
+//     });
+// }
+
+// decode token :
+const decodeToken = (req, res, next) => {
+    const token = req.header("authorization");
+    console.log(token)
+
+    if (!token) {
+        return res.status(401).send({ error: "No token provided." });
+    }
+    try {
+        const data = jwt.verify(token, secretKey)
+        console.log(data, "data", secretKey)
+
+        req.user = data.user;
+        console.log(req.user, "req.data")
+        next();
+    } catch (err) {
+        res.status(401).send({ error: "Please authenticate using a valid token" })
+    }
+}
+
 
 // get user api using filter :
 const UserSpecificData = async (req, res) => {
@@ -204,6 +212,7 @@ module.exports = {
     createUser,
     UserData,
     verifyToken,
+    decodeToken,
     UserpersonalData,
     UpdateUser,
     UserSpecificData,

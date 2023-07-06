@@ -1,19 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
-const { createUser, UserData, verifyToken, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
+const { createUser, UserData, verifyToken, decodeToken, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
 
 router.post(
     "/addDetail",
     createUser,
 )
 router.get(
-    "/userdata/:id",
+    "/userdata",
     UserData,
+    decodeToken,
 )
 router.post(
     "/verifytoken",
     verifyToken,
+)
+router.post(
+    "/decodetoken",
+    decodeToken,
+    UserData,
 )
 router.get(
     "/userspecificData/:id",
