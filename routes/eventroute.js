@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createEvent, EventData, UpdateEvent, verifyToken } = require("../controller/eventController");
+const { createEvent, EventData, UpdateEvent, verifyToken, decodetoken, deleteEventData } = require("../controller/eventController");
 
 router.post(
     "/event",
@@ -18,6 +18,15 @@ router.patch(
 router.post(
     "/verifytoken",
     verifyToken,
+)
+router.post(
+    "/decodetoken",
+    decodetoken,
+    EventData
+)
+router.delete(
+    "/delete/:id",
+    deleteEventData
 )
 module.exports = {
     route: router

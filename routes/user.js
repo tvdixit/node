@@ -8,9 +8,8 @@ router.post(
     createUser,
 )
 router.get(
-    "/userdata",
+    "/userdata/:id",
     UserData,
-    decodeToken,
 )
 router.post(
     "/verifytoken",

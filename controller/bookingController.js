@@ -8,10 +8,13 @@ const createBooking = async (req, res) => {
             event: req.body.event,
             user: req.body.user
         })
-        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
         const savedDetail = await bookingdata.save();
-        const eventdata = await Booking.findByIdAndUpdate(req.body, { Event: savedDetail.id }, { User: savedDetail.id });
+        // console.log(savedDetail);
+        // const data = await Booking.findByIdAndUpdate(req.body.event, req.body.user, { Event: savedDetail.id, User: savedDetail.id });
+        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '2000s' });
+        // console.log({ token });
         res.status(200).json({ savedDetail, token });
+
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -74,10 +77,45 @@ const verifyToken = (req, res) => {
         return res.status(401).send(error);
     }
 }
+
+const decodetoken = async (req, res) => {
+    const authHeader = req.header("authorization");
+    if (!authHeader) {
+        return res.status(401).send({ error: "No token provided." });
+    }
+    const [authType, token] = authHeader.split(" ");
+    if (authType !== "Bearer" || !token) {
+        return res.status(401).send({ error: "Invalid token format." });
+    }
+    try {
+        const data = jwt.verify(token, secretKey);
+        const user = await Booking.findOne({ _id: data.userId }).populate("event").populate({
+            path: 'user',
+            populate: {
+                path: 'personalDetail'
+            }
+        })
+        res.status(200).send({ data, user });
+    } catch (err) {
+        res.status(401).send({ error: "Please authenticate using a valid token" });
+    }
+}
+
+const deleteBookingData = async (req, res) => {
+    try {
+        const data = await Booking.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "delete data successfully", data })
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
 module.exports = {
     createBooking,
     BookingData,
     bookingFilterData,
     UpdateBooking,
-    verifyToken
+    verifyToken,
+    decodetoken,
+    deleteBookingData
 }

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createDetail, UserpersonalData, verifyToken } = require("../controller/personaldtlController");
+const { createDetail, UserpersonalData, verifyToken, decodetoken, deletepersonalData } = require("../controller/personaldtlController");
 
 router.post(
     "/addPersonaldetail",
@@ -15,6 +15,15 @@ router.get(
 router.post(
     "/verifytoken",
     verifyToken,
+)
+router.post(
+    "/decodetoken",
+    decodetoken,
+    UserpersonalData
+)
+router.delete(
+    "/deletepersonal/:id",
+    deletepersonalData
 )
 module.exports = {
     route: router

@@ -26,8 +26,9 @@ const Status = async (req, res) => {
             date: req.body.date,
             user_id: req.body.user_id,
         })
-        const token = jwt.sign({ data }, secretKey, { expiresIn: '2000s' });
         const savedData = await userdata.save();
+        // const data = await UserTask.findById(req.params.id).populate("user_id")
+        const token = jwt.sign({ savedData }, secretKey, { expiresIn: '2000s' });
         res.status(200).json({ savedData, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -137,6 +138,36 @@ const verifyToken = (req, res) => {
         return res.status(401).send(error);
     }
 }
+
+const decodetoken = async (req, res) => {
+    const authHeader = req.header("authorization");
+
+    if (!authHeader) {
+        return res.status(401).send({ error: "No token provided." });
+    }
+    const [authType, token] = authHeader.split(" ");
+    if (authType !== "Bearer" || !token) {
+        return res.status(401).send({ error: "Invalid token format." });
+    }
+    try {
+        const data = jwt.verify(token, secretKey);
+        const user = await UserTask.findOne({ _id: data.userId }).populate("user_id")
+        res.status(200).send({ data, user });
+    } catch (err) {
+        res.status(401).send({ error: "Please authenticate using a valid token" });
+    }
+}
+
+const deletetaskData = async (req, res) => {
+    try {
+        const data = await UserTask.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "delete data successfully", data })
+
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
 module.exports = {
     Status,
     TaskData,
@@ -144,26 +175,8 @@ module.exports = {
     statusMatch,
     taskLookup,
     tasknelookup,
-    verifyToken
+    verifyToken,
+    decodetoken,
+    deletetaskData
 }
 
-// const UserData = async (req, res) => {
-//     try {
-//         const userId = req.params.id;
-//         const token = jwt.sign({ userId }, secretKey, { expiresIn: "300s" }, 'your_secret_key');
-//         jwt.verify(token, secretKey, async (err, decode) => {
-//             if (err) {
-//                 if (err.name === 'TokenExpiredError') {
-//                     res.status(200).json({ success: false, message: 'token expired' });
-//                 } else {
-//                     res.status(200).json({ success: false, message: 'invalid token' });
-//                 }
-//             } else {
-//                 const data = await User.findById(userId).populate('createdEvent').populate('personalDetail');
-//                 res.json({ success: true, message: 'retrieve data successfully', data, token });
-//             }
-//         });
-//     } catch (error) {
-//         res.status(500).json({ success: false, message: error.message });
-//     }
-// };

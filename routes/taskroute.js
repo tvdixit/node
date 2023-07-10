@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup, verifyToken } = require("../controller/taskController");
+const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup, verifyToken, decodetoken, deletetaskData } = require("../controller/taskController");
 
 router.post(
     "/create/status",
@@ -30,6 +30,15 @@ router.get(
 router.post(
     "/verifytoken",
     verifyToken,
+)
+router.post(
+    "/decodetoken",
+    decodetoken,
+    TaskData
+)
+router.delete(
+    "/deletetask/:id",
+    deletetaskData
 )
 module.exports = {
     route: router

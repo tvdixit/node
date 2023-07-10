@@ -15,8 +15,8 @@ const createUser = async (req, res) => {
 
         })
         const savedDetail = await userdata.save();
-        const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        const token = jwt.sign(data, secretKey, { expiresIn: '20000s' });
+        // const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
+        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '20000s' });
         res.json({ token })
 
         jwt.verify(token, secretKey, (err, decoded) => {
@@ -39,11 +39,11 @@ const createUser = async (req, res) => {
 // // get Userdata api:
 const UserData = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.params.id;
 
-        const data = await User.findById(userId).populate("createdEvent").populate("personalDetail");
-        const token = jwt.sign({ data }, secretKey, { expiresIn: "3000s" });
-        res.send(data, token)
+        const token = jwt.sign({ userId }, secretKey, { expiresIn: "3000s" });
+        const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
+        // res.send(data, token)
 
         res.json({ success: true, message: "retrive data successfully", data, token })
     }
@@ -80,7 +80,7 @@ const UserData = async (req, res) => {
 const verifyToken = (req, res) => {
     try {
         const token = req.header("authorization");
-        console.log(token)
+        console.log(token);
 
         const verified = jwt.verify(token, secretKey);
         console.log(verified);
@@ -94,37 +94,24 @@ const verifyToken = (req, res) => {
         return res.status(401).send(error);
     }
 }
-// const verifyToken = (req, res) => {
-//     var token = req.headers['Authorization'];
-//     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-
-//     jwt.verify(token, config.secret, function (err, decoded) {
-//         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-//         res.status(200).send(decoded);
-//     });
-// }
-
-// decode token :
-const decodeToken = (req, res, next) => {
-    const token = req.header("authorization");
-    console.log(token)
-
-    if (!token) {
+// decode token api :
+const decodeToken = async (req, res) => {
+    const authHeader = req.header("authorization");
+    if (!authHeader) {
         return res.status(401).send({ error: "No token provided." });
     }
+    const [authType, token] = authHeader.split(" ");
+    if (authType !== "Bearer" || !token) {
+        return res.status(401).send({ error: "Invalid token format." });
+    }
     try {
-        const data = jwt.verify(token, secretKey)
-        console.log(data, "data", secretKey)
-
-        req.user = data.user;
-        console.log(req.user, "req.data")
-        next();
+        const data = jwt.verify(token, secretKey);
+        const user = await User.findOne({ _id: data.userId })
+        res.status(200).send({ data, user });
     } catch (err) {
-        res.status(401).send({ error: "Please authenticate using a valid token" })
+        res.status(401).send({ error: "Please authenticate using a valid token" });
     }
 }
-
-
 // get user api using filter :
 const UserSpecificData = async (req, res) => {
     try {
