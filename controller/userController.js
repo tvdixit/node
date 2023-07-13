@@ -11,8 +11,7 @@ const createUser = async (req, res) => {
             email: req.body.email,
             password: req.body.password,
             createdEvent: req.body.createdEvent,
-            personalDetail: req.body.personalDetail
-
+            personalDetail: req.body.personalDetail,
         })
         const savedDetail = await userdata.save();
         // const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
@@ -170,9 +169,9 @@ const deleteUserData = async (req, res) => {
 // aggregation UserMatch:
 const UserMatch = async (req, res) => {
     try {
-        personalData.aggregate([
-            { $match: { gender: "female" } },
-            { $group: { _id: "age", totalUsersAges: { $sum: 1 } } },
+        User.aggregate([
+            { $match: { first_name: "Neel" } },
+            { $group: { _id: "first_name", sameNameUser: { $sum: 1 } } },
             { $sort: { totalUsersAges: -1 } }
         ]).then((data) => {
             res.json(data)
@@ -185,8 +184,8 @@ const UserMatch = async (req, res) => {
 //aggragation lookup :
 const UserLookup = async (req, res) => {
     try {
-        personalData.aggregate([
-            { $lookup: { from: "Event", localField: "city", foreignField: "city", as: "gender" } },
+        User.aggregate([
+            { $lookup: { from: "events", localField: "createdEvent", foreignField: "_id", as: "EventData" } },
         ]).then((data) => {
             res.json(data)
         })

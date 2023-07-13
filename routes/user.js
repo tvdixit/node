@@ -41,7 +41,7 @@ router.get(
     UserMatch
 )
 router.get(
-    "/aggregate",
+    "/lookup",
     UserLookup
 )
 module.exports = {

@@ -28,6 +28,21 @@ const UserpersonalData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+
+// update personal data :
+const UpdatePersonaldata = async (req, res) => {
+    try {
+        const updatedData = req.body
+        await personalData.findOneAndUpdate({ _id: req.body._id },
+            updatedData).then(async (data) => {
+                var item = await personalData.findById(data._id);
+                res.send(item)
+            })
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
 const verifyToken = (req, res) => {
     try {
         const token = req.header("authorization");
@@ -73,10 +88,25 @@ const deletepersonalData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+
+const PersonalLookup = async (req, res) => {
+    try {
+        personalData.aggregate([
+            { $lookup: { from: "bookings", localField: "city", foreignField: "_id", as: "booking" } },
+        ]).then((data) => {
+            res.json(data)
+        })
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
 module.exports = {
     createDetail,
     UserpersonalData,
+    UpdatePersonaldata,
     verifyToken,
     decodetoken,
-    deletepersonalData
+    deletepersonalData,
+    PersonalLookup
 }
