@@ -7,8 +7,9 @@ const Like_post = new mongoose.Schema({
         ref: 'User'
     },
     like: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: "User"
+        type: Number,
+        default: 1,
+        // required: true
     },
     event_post_id: {
         type: mongoose.Schema.Types.ObjectId,

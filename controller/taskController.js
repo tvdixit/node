@@ -1,6 +1,7 @@
 const UserTask = require("../model_Schema/taskModel")
 const jwt = require("jsonwebtoken")
-const secretKey = 'yourSecretKey';
+const dotenv = require("dotenv");
+dotenv.config();
 
 const pops = () => {
     populate({
@@ -28,7 +29,7 @@ const Status = async (req, res) => {
         })
         const savedData = await userdata.save();
         // const data = await UserTask.findById(req.params.id).populate("user_id")
-        const token = jwt.sign({ savedData }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ savedData }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         res.status(200).json({ savedData, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -39,7 +40,7 @@ const Status = async (req, res) => {
 const TaskData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await UserTask.findById(req.params.id).populate("user_id").populate({
             path: 'user_id',
             populate: {
@@ -123,22 +124,7 @@ const tasknelookup = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-const verifyToken = (req, res) => {
-    try {
-        const token = req.header("authorization");
-        console.log(token)
-        const verified = jwt.verify(token, secretKey);
-        console.log(verified);
-        if (verified) {
-            return res.send("Successfully Verified");
-        } else {
-            return res.status(401).send(error);
-        }
-    } catch (error) {
-        return res.status(401).send(error);
-    }
-}
-
+//
 const decodetoken = async (req, res) => {
     const authHeader = req.header("authorization");
 
@@ -150,7 +136,7 @@ const decodetoken = async (req, res) => {
         return res.status(401).send({ error: "Invalid token format." });
     }
     try {
-        const data = jwt.verify(token, secretKey);
+        const data = jwt.verify(token, process.env.SECRET_KEY);
         const user = await UserTask.findOne({ _id: data.userId }).populate("user_id")
         res.status(200).send({ data, user });
     } catch (err) {
@@ -175,7 +161,6 @@ module.exports = {
     statusMatch,
     taskLookup,
     tasknelookup,
-    verifyToken,
     decodetoken,
     deletetaskData
 }

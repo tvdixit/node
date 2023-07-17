@@ -1,6 +1,7 @@
 const Booking = require("../model_Schema/bookingModel");
-const jwt = require("jsonwebtoken")
-const secretKey = 'yourSecretKey';
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const createBooking = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ const createBooking = async (req, res) => {
         const savedDetail = await bookingdata.save();
         // console.log(savedDetail);
         // const data = await Booking.findByIdAndUpdate(req.body.event, req.body.user, { Event: savedDetail.id, User: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         // console.log({ token });
         res.status(200).json({ savedDetail, token });
 
@@ -23,7 +24,7 @@ const createBooking = async (req, res) => {
 const BookingData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await Booking.findById(req.params.id).populate("event").populate({
             path: 'user',
             populate: {
@@ -62,22 +63,7 @@ const UpdateBooking = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-const verifyToken = (req, res) => {
-    try {
-        const token = req.header("authorization");
-        console.log(token)
-        const verified = jwt.verify(token, secretKey);
-        console.log(verified);
-        if (verified) {
-            return res.send("Successfully Verified");
-        } else {
-            return res.status(401).send(error);
-        }
-    } catch (error) {
-        return res.status(401).send(error);
-    }
-}
-
+//
 const decodetoken = async (req, res) => {
     const authHeader = req.header("authorization");
     if (!authHeader) {
@@ -88,7 +74,7 @@ const decodetoken = async (req, res) => {
         return res.status(401).send({ error: "Invalid token format." });
     }
     try {
-        const data = jwt.verify(token, secretKey);
+        const data = jwt.verify(token, process.env.SECRET_KEY);
         const user = await Booking.findOne({ _id: data.userId }).populate("event").populate({
             path: 'user',
             populate: {
@@ -115,7 +101,6 @@ module.exports = {
     BookingData,
     bookingFilterData,
     UpdateBooking,
-    verifyToken,
     decodetoken,
     deleteBookingData
 }

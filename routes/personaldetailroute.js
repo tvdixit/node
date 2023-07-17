@@ -1,8 +1,8 @@
 
 const express = require('express');
 const router = express.Router();
-
-const { createDetail, UserpersonalData, UpdatePersonaldata, verifyToken, decodetoken, deletepersonalData, PersonalLookup } = require("../controller/personaldtlController");
+const { auth, verifyToken } = require("../midlware/auth")
+const { createDetail, UserpersonalData, UpdatePersonaldata, decodetoken, deletepersonalData, PersonalLookup } = require("../controller/personaldtlController");
 
 router.post(
     "/addPersonaldetail",

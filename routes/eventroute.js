@@ -3,8 +3,8 @@ const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
-const { createEvent, EventData, UpdateEvent, verifyToken, decodetoken, deleteEventData, createpost, EventpostData, like, Likedpost, likebyuser } = require("../controller/eventController");
-//
+const { auth, verifyToken } = require("../midlware/auth")
+const { createEvent, EventData, UpdateEvent, decodetoken, deleteEventData, createpost, EventpostData, like, Likedpost, likebyuser } = require("../controller/eventController");
 
 const Upload = multer({
     storage: multer.diskStorage({
@@ -67,8 +67,7 @@ router.get(
 )
 router.post(
     "/like/:id",
-    // verifyToken,
-    decodetoken,
+    auth(),
     likebyuser,
 )
 module.exports = {

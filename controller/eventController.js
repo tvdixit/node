@@ -1,12 +1,11 @@
-const path = require("path");
 const Event = require("../model_Schema/EventModel");
 const Event_post = require("../model_Schema/event_PostModel")
 const Like_post = require("../model_Schema/likeModel")
 const User = require("../model_Schema/userModel")
 const jwt = require("jsonwebtoken");
-const { file } = require("loader");
-const { log } = require("console");
-const secretKey = 'yourSecretKey';
+const dotenv = require("dotenv");
+dotenv.config();
+var ObjectId = require('mongodb').ObjectId;
 
 // Event :
 const createEvent = async (req, res) => {
@@ -21,7 +20,7 @@ const createEvent = async (req, res) => {
         })
         const savedDetail = await eventdata.save();
         // const data = await Event.findByIdAndUpdate(req.body.creator, { creator: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         console.log({ savedDetail, token });
         res.status(200).json(savedDetail);
     } catch (error) {
@@ -32,7 +31,7 @@ const createEvent = async (req, res) => {
 const EventData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await Event.findById(req.params.id).populate("creator");
         res.json({ success: true, message: "retrive data successfully", data, token })
     }
@@ -54,23 +53,6 @@ const UpdateEvent = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-// verify token :
-const verifyToken = (req, res) => {
-    try {
-        const token = req.header("authorization");
-        console.log(token)
-        const verified = jwt.verify(token, secretKey);
-        console.log(verified);
-        if (verified) {
-            return res.send("Successfully Verified");
-        } else {
-            return res.status(401).send(error);
-        }
-    } catch (error) {
-        return res.status(401).send(error);
-    }
-}
-
 // delete event :
 const deleteEventData = async (req, res) => {
     try {
@@ -119,20 +101,20 @@ const EventpostData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-// Like_post Model :--
-// post like data :
+// ..Like_post Model :--
+//.. post like data :
 const like = async (req, res) => {
-    try {
-        const eventdata = new Like_post({
-            user_id: req.body.user_id,
-            like: req.body.like,
-            event_post_id: req.body.event_post_id
-        });
-        const savedDetail = await eventdata.save();
-        res.status(200).json(savedDetail);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+    //     try {
+    //         const eventdata = new Like_post({
+    //             user_id: req.body.user_id,
+    //             like: req.body.like,
+    //             event_post_id: req.body.event_post_id
+    //         });
+    //         const savedDetail = await eventdata.save();
+    //         res.status(200).json(savedDetail);
+    //     } catch (error) {
+    //         res.status(400).json({ message: error.message });
+    //     }
 }
 // get like_post data :
 const Likedpost = async (req, res) => {
@@ -161,12 +143,8 @@ const decodetoken = async (req, res, next) => {
         return res.status(401).send({ error: "Invalid token format." });
     }
     try {
-        const data = jwt.verify(token, secretKey);
-        // console.log(data, "data");
-
-        const user = await User.findOne({ _id: data.userId })
-        // console.log(user, "user");
-
+        const data = jwt.verify(token, process.env.SECRET_KEY);
+        const user = await Like_post.findOne({ _id: data.userId })
         return res.status(200).send({ user });
 
     } catch (err) {
@@ -175,29 +153,47 @@ const decodetoken = async (req, res, next) => {
 }
 // like a post using user token :
 const likebyuser = async (req, res) => {
-    try {
-        console.log(req.user, "req.user");
-        const post = await User.findOne(req.params.id)
-        console.log(req.params.id);
-        // console.log(post, "post")
-
-        // console.log(req.userId, "req.userId")
-        // const decodedUserId = req.user.userId;
-        // post.like = decodedUserId;
-
-        // console.log(post.like);
-        await post.save();
-        // res.status(200).json(post.like);
-
-    } catch (error) {
-        res.status(500).send("server error")
-    }
+    let post_id = req.params.id
+    Like_post.aggregate([{
+        $match: {
+            $and: [
+                { user_id: new ObjectId(req.user.user_id) },
+                { event_post_id: new ObjectId(post_id) },
+            ]
+        }
+    }]).then((item) => {
+        if (item.length === 0) {
+            const eventdata = new Like_post({
+                user_id: req.user.user_id,
+                event_post_id: post_id
+            });
+            eventdata.save().then((savedDetail) => {
+                res.status(200).json(savedDetail);
+            }).catch((e) => {
+                res.status(500).send("data not saved");
+            });
+        } else {
+            Like_post.deleteOne({
+                $and: [
+                    { user_id: new ObjectId(req.user.user_id) },
+                    { event_post_id: new ObjectId(post_id) },
+                ]
+            }).then((result) => {
+                res.status(200).json({ message: "record deleted " });
+            }).catch((e) => {
+                res.status(500).send("Failed to delete ");
+            });
+        }
+    }).catch((e) => {
+        console.log("e", e.message);
+        res.status(500).send("Error in like data.");
+    });
 }
 module.exports = {
     createEvent,
     EventData,
     UpdateEvent,
-    verifyToken,
+    // verifyToken,
     decodetoken,
     deleteEventData,
     // event_post Model :--

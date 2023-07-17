@@ -1,6 +1,7 @@
 const Review = require("../model_Schema/reviewModel");
 const jwt = require("jsonwebtoken");
-const secretKey = 'yourSecretKey';
+const dotenv = require("dotenv");
+dotenv.config();
 
 // Post Review :
 const AddReview = async (req, res) => {
@@ -13,7 +14,7 @@ const AddReview = async (req, res) => {
 
         })
         const savedDetail = await userdata.save();
-        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '20000s' });
+        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '20000s' });
         res.json({ savedDetail, token })
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -23,7 +24,7 @@ const AddReview = async (req, res) => {
 const ReviewData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: '2000s' });
+        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await Review.findById(req.params.id).populate("user_id", { first_name: 1, last_name: 1, email: 1 }).populate("event_id", { title: 1, description: 1, price: 1 })
         if (!data) {
             return res.status(404).json({ error: 'User not found' });

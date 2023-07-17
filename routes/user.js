@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-const { createUser, UserData, verifyToken, decodeToken, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
+const { auth, verifyToken } = require("../midlware/auth")
+const { createUser, UserData, decodeToken, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
 
 router.post(
     "/addDetail",

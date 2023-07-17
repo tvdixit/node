@@ -1,6 +1,7 @@
 const User = require("../model_Schema/userModel");
 const jwt = require("jsonwebtoken");
-const secretKey = 'yourSecretKey';
+const dotenv = require("dotenv");
+dotenv.config();
 
 // User :
 const createUser = async (req, res) => {
@@ -15,10 +16,10 @@ const createUser = async (req, res) => {
         })
         const savedDetail = await userdata.save();
         // const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, secretKey, { expiresIn: '20000s' });
+        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '20000s' });
         res.json({ token })
 
-        jwt.verify(token, secretKey, (err, decoded) => {
+        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
             if (err) {
                 if (err.name === 'TokenExpiredError') {
                     res.status(200).json({ savedDetail, token, expired: true });
@@ -40,7 +41,7 @@ const UserData = async (req, res) => {
     try {
         const userId = req.params.id;
 
-        const token = jwt.sign({ userId }, secretKey, { expiresIn: "3000s" });
+        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "3000s" });
         const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
         // res.send(data, token)
 
@@ -51,48 +52,7 @@ const UserData = async (req, res) => {
     }
 }
 
-// ...... verify token
-// const verifyToken = (req, res, next) => {
-//     const bearHeader = req.headers["Authorization"]
-//     if (typeof bearHeader !== "undefined") {
-//         const bearerToken = bearHeader.split(' ')[1]
-//         req.token = bearerToken;
-//         next()
-//     } else {
-//         res.sendStatus(401);// forbidden
-//     }
-// }
 
-
-// const verifyToken = (req, res) => {
-//     jwt.verify(req.token, "secretKey", (err, authData) => {
-//         if (err) {
-//             res.sendStatus(401); // forbidden
-//         } else {
-//             res.json({
-//                 message: "post created...",
-//                 authData
-//             });
-//         }
-//     });
-// }
-const verifyToken = (req, res) => {
-    try {
-        const token = req.header("authorization");
-        console.log(token);
-
-        const verified = jwt.verify(token, secretKey);
-        console.log(verified);
-
-        if (verified) {
-            return res.send({ message: "Successfully Verified" });
-        } else {
-            return res.status(401).send({ message: "no token provided" });
-        }
-    } catch (error) {
-        return res.status(401).send(error);
-    }
-}
 // decode token api :
 const decodeToken = async (req, res) => {
     const authHeader = req.header("authorization");
@@ -104,7 +64,7 @@ const decodeToken = async (req, res) => {
         return res.status(401).send({ error: "Invalid token format." });
     }
     try {
-        const data = jwt.verify(token, secretKey);
+        const data = jwt.verify(token, process.env.SECRET_KEY);
         const user = await User.findOne({ _id: data.userId })
         res.status(200).send({ data, user });
     } catch (err) {
@@ -197,7 +157,6 @@ const UserLookup = async (req, res) => {
 module.exports = {
     createUser,
     UserData,
-    verifyToken,
     decodeToken,
     UserpersonalData,
     UpdateUser,

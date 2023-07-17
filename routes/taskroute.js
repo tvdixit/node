@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup, verifyToken, decodetoken, deletetaskData } = require("../controller/taskController");
+const { auth, verifyToken } = require("../midlware/auth")
+const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup, decodetoken, deletetaskData } = require("../controller/taskController");
 
 router.post(
     "/create/status",

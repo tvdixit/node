@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-const { createBooking, BookingData, bookingFilterData, UpdateBooking, verifyToken, decodetoken, deleteBookingData } = require("../controller/bookingController");
+const { auth, verifyToken } = require("../midlware/auth")
+const { createBooking, BookingData, bookingFilterData, UpdateBooking, decodetoken, deleteBookingData } = require("../controller/bookingController");
 
 router.post(
     "/add/booking",
