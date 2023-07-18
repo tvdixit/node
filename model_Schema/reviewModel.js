@@ -5,11 +5,14 @@ const RatingSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    star_rating: {
+    star_rating: [{
         type: Number,
-        required: true,
+        postedby: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
         default: 0,
-    },
+    }],
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

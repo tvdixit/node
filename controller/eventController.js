@@ -132,6 +132,7 @@ const Likedpost = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
+
 // decode token :
 const decodetoken = async (req, res, next) => {
     const authHeader = req.header("authorization");
@@ -179,7 +180,7 @@ const likebyuser = async (req, res) => {
                     { event_post_id: new ObjectId(post_id) },
                 ]
             }).then((result) => {
-                res.status(200).json({ message: "record deleted " });
+                res.status(200).json({ message: "Post Unlike" });
             }).catch((e) => {
                 res.status(500).send("Failed to delete ");
             });
@@ -189,18 +190,81 @@ const likebyuser = async (req, res) => {
         res.status(500).send("Error in like data.");
     });
 }
+// find user like how many posts
+const UserLikedpost = async (req, res) => {
+    try {
+        const user_id = req.params.id;
+        console.log(user_id, "userId");
+        const likes = await Like_post.find({ user_id: user_id });
+        console.log(likes, "like");
+
+        if (likes) {
+            res.json({ success: true, data: [likes] });
+        } else {
+            res.send("No likes found for this post.");
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+
+// find post have how many users like :
+const PostLikedbyUser = async (req, res) => {
+    try {
+        const event_post_id = req.params.id;
+        // console.log(event_post_id, "event_post_id");
+        const likes = await Like_post.find({ event_post_id: event_post_id });
+        // console.log(likes, "like");
+
+        if (likes) {
+            res.json({ success: true, data: [likes] });
+        } else {
+            res.send("No likes found for this post.");
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+// get all like posts data :
+const AllLikedpost = async (req, res) => {
+    try {
+        const data = await Like_post.find()
+        res.json({ success: true, message: "retrive data successfully", data })
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
+
+// get event_post data 
+const AllEventData = async (req, res) => {
+    try {
+        const data = await Event_post.find().populate("event_id")
+        res.json({ success: true, message: "retrive data successfully", data })
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}
 module.exports = {
     createEvent,
     EventData,
     UpdateEvent,
-    // verifyToken,
     decodetoken,
     deleteEventData,
     // event_post Model :--
     createpost,
     EventpostData,
+    AllLikedpost,
     // like_post Model :--
     like,
     Likedpost,
-    likebyuser
+    likebyuser,
+    UserLikedpost,
+    PostLikedbyUser,
+    AllEventData
+
+
 }

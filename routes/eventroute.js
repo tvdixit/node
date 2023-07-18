@@ -4,7 +4,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
 const { auth, verifyToken } = require("../midlware/auth")
-const { createEvent, EventData, UpdateEvent, decodetoken, deleteEventData, createpost, EventpostData, like, Likedpost, likebyuser } = require("../controller/eventController");
+const { createEvent, EventData, UpdateEvent, decodetoken, deleteEventData, createpost, EventpostData, AllLikedpost, like, Likedpost, likebyuser, UserLikedpost, PostLikedbyUser, AllEventData } = require("../controller/eventController");
 
 const Upload = multer({
     storage: multer.diskStorage({
@@ -57,6 +57,10 @@ router.get(
     "/eventpost/detail/:id",
     EventpostData
 )
+router.get(
+    "/all/likeddata",
+    AllLikedpost
+)
 router.post(
     "/like",
     like
@@ -69,6 +73,18 @@ router.post(
     "/like/:id",
     auth(),
     likebyuser,
+)
+router.get(
+    "/user/liked/:id",
+    UserLikedpost
+)
+router.get(
+    "/likedpost/:id",
+    PostLikedbyUser
+)
+router.get(
+    "/all/postdata",
+    AllEventData
 )
 module.exports = {
     route: router
