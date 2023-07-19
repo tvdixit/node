@@ -1,4 +1,4 @@
-const Review = require("../model_Schema/reviewModel");
+const Review = require("../model/reviewModel");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -11,11 +11,9 @@ const AddReview = async (req, res) => {
             star_rating: req.body.star_rating,
             user_id: req.body.user_id,
             event_id: req.body.event_id
-
         })
         const savedDetail = await userdata.save();
-        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '20000s' });
-        res.json({ savedDetail, token })
+        res.json({ savedDetail })
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -23,14 +21,14 @@ const AddReview = async (req, res) => {
 // get  review by id :
 const ReviewData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
+
+
         const data = await Review.findById(req.params.id).populate("user_id", { first_name: 1, last_name: 1, email: 1 }).populate("event_id", { title: 1, description: 1, price: 1 })
         if (!data) {
             return res.status(404).json({ error: 'User not found' });
         }
         const reviews = data.reviews;
-        res.json({ success: true, message: "retrive data successfully", data, token, reviews })
+        res.json({ success: true, message: "retrive data successfully", data, reviews })
     }
     catch (error) {
         res.status(500).json({ message: error.message })

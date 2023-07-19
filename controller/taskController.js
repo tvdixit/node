@@ -1,21 +1,8 @@
-const UserTask = require("../model_Schema/taskModel")
+const UserTask = require("../model/taskModel")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv");
 dotenv.config();
 
-const pops = () => {
-    populate({
-        path: 'user_id',
-        populate: {
-            path: "createdEvent",
-        }
-    }).populate({
-        path: 'user_id',
-        populate: {
-            path: "personalDetail",
-        }
-    });
-}
 
 // UserStatusSchema :
 const Status = async (req, res) => {
@@ -28,9 +15,7 @@ const Status = async (req, res) => {
             user_id: req.body.user_id,
         })
         const savedData = await userdata.save();
-        // const data = await UserTask.findById(req.params.id).populate("user_id")
-        const token = jwt.sign({ savedData }, process.env.SECRET_KEY, { expiresIn: '2000s' });
-        res.status(200).json({ savedData, token });
+        res.status(200).json({ savedData });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -39,8 +24,6 @@ const Status = async (req, res) => {
 //User data get:
 const TaskData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await UserTask.findById(req.params.id).populate("user_id").populate({
             path: 'user_id',
             populate: {
@@ -52,7 +35,7 @@ const TaskData = async (req, res) => {
                 path: "personalDetail",
             }
         })
-        res.json({ success: true, message: "retrive data successfully", data, token })
+        res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
@@ -143,7 +126,7 @@ const decodetoken = async (req, res) => {
         res.status(401).send({ error: "Please authenticate using a valid token" });
     }
 }
-
+// delete task data :
 const deletetaskData = async (req, res) => {
     try {
         const data = await UserTask.findByIdAndDelete(req.params.id);

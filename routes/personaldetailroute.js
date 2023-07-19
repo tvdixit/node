@@ -1,38 +1,17 @@
 
 const express = require('express');
 const router = express.Router();
-const { auth, verifyToken } = require("../midlware/auth")
+const { auth } = require("../midlware/auth")
 const { createDetail, UserpersonalData, UpdatePersonaldata, decodetoken, deletepersonalData, PersonalLookup } = require("../controller/personaldtlController");
 
-router.post(
-    "/addPersonaldetail",
-    createDetail
-)
-router.get(
-    "/personalData/:id",
-    UserpersonalData,
-)
-router.patch(
-    "/update",
-    UpdatePersonaldata
-)
-router.post(
-    "/verifytoken",
-    verifyToken,
-)
-router.post(
-    "/decodetoken",
-    decodetoken,
-    UserpersonalData
-)
-router.delete(
-    "/deletepersonal/:id",
-    deletepersonalData
-)
-router.get(
-    "/lookup",
-    PersonalLookup
-)
+router
+    .post("/addPersonaldetail", createDetail)
+    .get("/personalData/:id", auth(), UserpersonalData)
+    .patch("/update", UpdatePersonaldata)
+    // .post("/verifytoken", verifyToken)
+    .post("/decodetoken", decodetoken, UserpersonalData)
+    .delete("/deletepersonal/:id", deletepersonalData)
+    .get("/lookup", PersonalLookup)
 module.exports = {
     route: router
 };

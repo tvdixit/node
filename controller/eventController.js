@@ -1,7 +1,6 @@
-const Event = require("../model_Schema/EventModel");
-const Event_post = require("../model_Schema/event_PostModel")
-const Like_post = require("../model_Schema/likeModel")
-const User = require("../model_Schema/userModel")
+const Event = require("../model/EventModel");
+const Event_post = require("../model/event_PostModel")
+const Like_post = require("../model/likeModel")
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -19,9 +18,6 @@ const createEvent = async (req, res) => {
             like_id: req.body.like_id
         })
         const savedDetail = await eventdata.save();
-        // const data = await Event.findByIdAndUpdate(req.body.creator, { creator: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '2000s' });
-        console.log({ savedDetail, token });
         res.status(200).json(savedDetail);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -88,7 +84,6 @@ const createpost = async (req, res) => {
 // get event_post data 
 const EventpostData = async (req, res) => {
     try {
-        const userId = req.params.id;
         const data = await Event_post.findById(req.params.id).populate("event_id").populate({
             path: 'event_id',
             populate: {
@@ -257,8 +252,11 @@ const LikeDatainPost = async (req, res) => {
         const data = await Event_post.find({ event_id: req.params.id })
 
         for (const item of data) {
+            console.log({ ...item }, "item");
+            // console.log(data, "data");
             const datalike = await Like_post.find({ event_post_id: item.id });
-            likeData.push({ post_id: { ...item.toObject(), likes: [...datalike] } });
+            console.log(datalike, "datalike");
+            likeData.push({ ...item._doc, likes: datalike });
         }
 
         res.status(200).json({ likeData })

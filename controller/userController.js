@@ -1,7 +1,7 @@
-const User = require("../model_Schema/userModel");
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
+const User = require("../model/userModel");
+const jwt = require("jsonwebtoken");
 
 // User :
 const createUser = async (req, res) => {
@@ -15,37 +15,34 @@ const createUser = async (req, res) => {
             personalDetail: req.body.personalDetail,
         })
         const savedDetail = await userdata.save();
-        // const data = await User.findByIdAndUpdate(req.body.createdEvent, { createdEvent: savedDetail.id }, { personalDetail: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '20000s' });
-        res.json({ token })
+        res.status(200).json({ savedDetail })
 
-        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-            if (err) {
-                if (err.name === 'TokenExpiredError') {
-                    res.status(200).json({ savedDetail, token, expired: true });
-                } else {
-                    res.status(200).json({ savedDetail, token, expired: false });
-                }
-            } else {
-                res.status(200).json({ savedDetail, token, expired: false });
-            }
-
-        });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
 
+// login APi : 
+const Userlogin = async (req, res) => {
+    try {
+        const { email, password } = req.body
+        const token = jwt.sign({ email, password }, process.env.SECRET_KEY, { expiresIn: '20000s' });
+        const users = await User.findOne({ email, password })
+        if (!users) {
+            return res.status(401).json("invalid email or password")
+        }
+        res.status(200).json({ users, token })
+    } catch (err) {
+        res.status(400).json("Error")
+        console.log(err);
+    }
+};
+
 // // get Userdata api:
 const UserData = async (req, res) => {
     try {
-        const userId = req.params.id;
-
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "3000s" });
         const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
-        // res.send(data, token)
-
-        res.json({ success: true, message: "retrive data successfully", data, token })
+        res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
@@ -156,6 +153,7 @@ const UserLookup = async (req, res) => {
 }
 module.exports = {
     createUser,
+    Userlogin,
     UserData,
     decodeToken,
     UserpersonalData,

@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
-const url = "mongodb://0.0.0.0:27017/new_node";
+const dotenv = require("dotenv");
+dotenv.config();
 
 async function dbconnect() {
-    mongoose.connect(url,
+    mongoose.connect(process.env.DB_URL,
         {
             useNewUrlParser: true,
             useUnifiedTopology: true

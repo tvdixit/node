@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
-const { auth, verifyToken } = require("../midlware/auth")
+const { auth } = require("../midlware/auth")
 const { createEvent, EventData, UpdateEvent, decodetoken, deleteEventData, createpost, EventpostData, AllLikedpost, like, Likedpost, likebyuser, UserLikedpost, PostLikedbyUser, AllEventData, LikeDatainPost } = require("../controller/eventController");
 
 const Upload = multer({
@@ -19,78 +19,26 @@ const Upload = multer({
         }
     })
 }).array('image', 5)
-router.post("/upload/image", Upload, async (req, res) => {
-    res.status(200).send("file upload")
-})
-//
-router.post(
-    "/event",
-    createEvent
-)
-router.get(
-    "/eventdata/:id",
-    EventData
-)
-router.patch(
-    "/updateEvent",
-    UpdateEvent
-)
-router.post(
-    "/verifytoken",
-    verifyToken,
-)
-router.post(
-    "/decodetoken",
-    decodetoken,
-    EventData
-)
-router.delete(
-    "/delete/:id",
-    deleteEventData
-)
-router.post(
-    "/create/post",
-    Upload,
-    createpost,
-)
-router.get(
-    "/eventpost/detail/:id",
-    EventpostData
-)
-router.get(
-    "/all/likeddata",
-    AllLikedpost
-)
-router.post(
-    "/like",
-    like
-)
-router.get(
-    "/liked/:id",
-    Likedpost
-)
-router.post(
-    "/like/:id",
-    auth(),
-    likebyuser,
-)
-router.get(
-    "/user/liked/:id",
-    UserLikedpost
-)
-router.get(
-    "/likedpost/:id",
-    PostLikedbyUser
-)
-router.get(
-    "/all/postdata",
-    AllEventData,
-    AllLikedpost
-)
-router.get(
-    "/post/like/data/:id",
-    LikeDatainPost
-)
+router
+    .post("/upload/image", Upload, async (req, res) => {
+        res.status(200).send("file upload")
+    })
+    .post("/event", createEvent)
+    .get("/eventdata/:id", EventData)
+    .patch("/updateEvent", UpdateEvent)
+    // .post("/verifytoken", verifyToken)
+    .post("/decodetoken", decodetoken, EventData)
+    .delete("/delete/:id", deleteEventData)
+    .post("/create/post", Upload, createpost)
+    .get("/eventpost/detail/:id", EventpostData)
+    .get("/all/likeddata", AllLikedpost)
+    .post("/like", like)
+    .get("/liked/:id", Likedpost)
+    .post("/like/:id", auth(), likebyuser)
+    .get("/user/liked/:id", UserLikedpost)
+    .get("/likedpost/:id", PostLikedbyUser)
+    .get("/all/postdata", AllEventData, AllLikedpost)
+    .get("/post/like/data/:id", LikeDatainPost)
 module.exports = {
     route: router
 };

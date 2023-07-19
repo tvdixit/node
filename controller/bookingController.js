@@ -1,8 +1,10 @@
-const Booking = require("../model_Schema/bookingModel");
+const Booking = require("../model/bookingModel");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+
+// create booking detail : 
 const createBooking = async (req, res) => {
     try {
         const bookingdata = new Booking({
@@ -10,11 +12,7 @@ const createBooking = async (req, res) => {
             user: req.body.user
         })
         const savedDetail = await bookingdata.save();
-        // console.log(savedDetail);
-        // const data = await Booking.findByIdAndUpdate(req.body.event, req.body.user, { Event: savedDetail.id, User: savedDetail.id });
-        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '2000s' });
-        // console.log({ token });
-        res.status(200).json({ savedDetail, token });
+        res.status(200).json({ savedDetail });
 
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -23,15 +21,13 @@ const createBooking = async (req, res) => {
 // booking data
 const BookingData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await Booking.findById(req.params.id).populate("event").populate({
             path: 'user',
             populate: {
                 path: 'personalDetail'
             }
         });
-        res.json({ success: true, message: "retrive data successfully", data, token })
+        res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
@@ -63,7 +59,7 @@ const UpdateBooking = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-//
+// decode token : 
 const decodetoken = async (req, res) => {
     const authHeader = req.header("authorization");
     if (!authHeader) {
@@ -87,6 +83,7 @@ const decodetoken = async (req, res) => {
     }
 }
 
+// delete Bookingdata :
 const deleteBookingData = async (req, res) => {
     try {
         const data = await Booking.findByIdAndDelete(req.params.id);

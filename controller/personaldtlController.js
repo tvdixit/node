@@ -1,8 +1,10 @@
-const personalData = require("../model_Schema/personalModel");
+const personalData = require("../model/personalModel");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+
+// create personaDetail : 
 const createDetail = async (req, res) => {
     try {
         const data = new personalData({
@@ -12,16 +14,14 @@ const createDetail = async (req, res) => {
             city: req.body.city
         });
         const savedDetail = await data.save();
-        const token = jwt.sign({ savedDetail }, process.env.SECRET_KEY, { expiresIn: '2000s' });
-        res.status(200).json({ savedDetail, token });
+        res.status(200).json({ savedDetail });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
+// get personalDetail data :
 const UserpersonalData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await personalData.findById(req.params.id);
         res.json({ success: true, message: "retrive data successfully", data, token })
     }
@@ -64,6 +64,7 @@ const decodetoken = async (req, res) => {
     }
 }
 
+// delete personalDetail 
 const deletepersonalData = async (req, res) => {
     try {
         const data = await User.findByIdAndDelete(req.params.id);
@@ -75,6 +76,7 @@ const deletepersonalData = async (req, res) => {
     }
 }
 
+// personalDetail Lookup :
 const PersonalLookup = async (req, res) => {
     try {
         personalData.aggregate([
