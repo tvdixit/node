@@ -241,13 +241,36 @@ const AllLikedpost = async (req, res) => {
 // get event_post data 
 const AllEventData = async (req, res) => {
     try {
-        const data = await Event_post.find().populate("event_id")
+        const data = await Event_post.find()
+        // .populate("event_id")
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
+
+// push liker data in post :
+const LikeDatainPost = async (req, res) => {
+    try {
+        const likeData = []
+        const data = await Event_post.find({ event_id: req.params.id })
+
+        for (const item of data) {
+            const datalike = await Like_post.find({ event_post_id: item.id });
+            likeData.push({ post_id: { ...item.toObject(), likes: [...datalike] } });
+        }
+
+        res.status(200).json({ likeData })
+    } catch (error) {
+        res.json({ message: error.message })
+    }
+}
+
+
+
+
+
 module.exports = {
     createEvent,
     EventData,
@@ -264,7 +287,8 @@ module.exports = {
     likebyuser,
     UserLikedpost,
     PostLikedbyUser,
-    AllEventData
+    AllEventData,
+    LikeDatainPost
 
 
 }
