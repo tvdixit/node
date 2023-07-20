@@ -1,8 +1,6 @@
 const UserTask = require("../model/taskModel")
-const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv");
 dotenv.config();
-
 
 // UserStatusSchema :
 const Status = async (req, res) => {
@@ -20,7 +18,6 @@ const Status = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 }
-
 //User data get:
 const TaskData = async (req, res) => {
     try {
@@ -41,7 +38,6 @@ const TaskData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // Update UserStatus DATA :
 const UpdateTaskData = async (req, res) => {
     try {
@@ -66,7 +62,6 @@ const UpdateTaskData = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-
 // aggregate match status :
 const statusMatch = async (req, res) => {
     try {
@@ -80,7 +75,6 @@ const statusMatch = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // aggragation lookup -- 
 const taskLookup = async (req, res) => {
     try {
@@ -93,7 +87,6 @@ const taskLookup = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // aggregation looksup and use ne means not equal :
 const tasknelookup = async (req, res) => {
     try {
@@ -105,25 +98,6 @@ const tasknelookup = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ message: error.message })
-    }
-}
-//
-const decodetoken = async (req, res) => {
-    const authHeader = req.header("authorization");
-
-    if (!authHeader) {
-        return res.status(401).send({ error: "No token provided." });
-    }
-    const [authType, token] = authHeader.split(" ");
-    if (authType !== "Bearer" || !token) {
-        return res.status(401).send({ error: "Invalid token format." });
-    }
-    try {
-        const data = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await UserTask.findOne({ _id: data.userId }).populate("user_id")
-        res.status(200).send({ data, user });
-    } catch (err) {
-        res.status(401).send({ error: "Please authenticate using a valid token" });
     }
 }
 // delete task data :
@@ -144,7 +118,6 @@ module.exports = {
     statusMatch,
     taskLookup,
     tasknelookup,
-    decodetoken,
     deletetaskData
 }
 

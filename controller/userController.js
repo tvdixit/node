@@ -1,55 +1,49 @@
 const dotenv = require("dotenv");
-dotenv.config();
 const User = require("../model/userModel");
+dotenv.config();
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt")
+
 
 // User :
 const createUser = async (req, res) => {
-    try {
-        const userdata = new User({
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            email: req.body.email,
-            password: req.body.password,
-            createdEvent: req.body.createdEvent,
-            personalDetail: req.body.personalDetail,
-        })
-        const savedDetail = await userdata.save();
-        res.status(200).json({ savedDetail })
 
+    try {
+        const { password } = req.body;
+        const saltRounds = 10;
+        bcrypt.genSalt(saltRounds, function (err, salt) {
+            bcrypt.hash(password, salt, async function (err, hash) {
+                const userdata = new User({
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    email: req.body.email,
+                    password: hash,
+                    createdEvent: req.body.createdEvent,
+                    personalDetail: req.body.personalDetail,
+                })
+                const savedDetail = await userdata.save();
+                res.status(200).json({ savedDetail })
+            })
+        })
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
-
-// login APi : 
-const Userlogin = async (req, res) => {
-    try {
-        const { email, password } = req.body
-        const token = jwt.sign({ email, password }, process.env.SECRET_KEY, { expiresIn: '20000s' });
-        const users = await User.findOne({ email, password })
-        if (!users) {
-            return res.status(401).json("invalid email or password")
-        }
-        res.status(200).json({ users, token })
-    } catch (err) {
-        res.status(400).json("Error")
-        console.log(err);
-    }
-};
-
-// // get Userdata api:
+// get Userdata api:
 const UserData = async (req, res) => {
+    // req.user = { user_id: req.user.userId };
+    // console.log(req.user);
     try {
-        const data = await User.findById(req.params.id).populate("createdEvent").populate("personalDetail");
+        // let getdata = req.user
+        // console.log(getdata);
+        // console.log(req.user.userId, "getdata");
+        const data = await User.findOne({ email: req.user.email }).populate("createdEvent").populate("personalDetail");
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
-
-
 // decode token api :
 const decodeToken = async (req, res) => {
     const authHeader = req.header("authorization");
@@ -88,27 +82,16 @@ const UserFilterData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-// get personal information :
-const UserpersonalData = async (req, res) => {
-    try {
-        const data = await personalData.findById(req.params.id);
-        res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
+
 //update User api :
 const UpdateUser = async (req, res) => {
     try {
-        const updatedData = req.body
-        await User.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await User.findById(data._id);
-                res.send(item)
-            })
-    }
-    catch (error) {
+        const updatedData = req.user
+        const data = await User.findOne({ email: updatedData.user.email })
+        data.set(req.body);
+        const updatedUser = await data.save();
+        res.json({ data: updatedUser });
+    } catch (error) {
         res.status(400).json({ message: error.message })
     }
 }
@@ -153,10 +136,8 @@ const UserLookup = async (req, res) => {
 }
 module.exports = {
     createUser,
-    Userlogin,
     UserData,
     decodeToken,
-    UserpersonalData,
     UpdateUser,
     UserSpecificData,
     UserFilterData,

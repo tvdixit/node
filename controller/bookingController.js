@@ -1,5 +1,4 @@
 const Booking = require("../model/bookingModel");
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -33,7 +32,6 @@ const BookingData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // get booking all data filter :
 const bookingFilterData = async (req, res) => {
     try {
@@ -44,7 +42,6 @@ const bookingFilterData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // Update Booking api :
 const UpdateBooking = async (req, res) => {
     try {
@@ -59,30 +56,6 @@ const UpdateBooking = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-// decode token : 
-const decodetoken = async (req, res) => {
-    const authHeader = req.header("authorization");
-    if (!authHeader) {
-        return res.status(401).send({ error: "No token provided." });
-    }
-    const [authType, token] = authHeader.split(" ");
-    if (authType !== "Bearer" || !token) {
-        return res.status(401).send({ error: "Invalid token format." });
-    }
-    try {
-        const data = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await Booking.findOne({ _id: data.userId }).populate("event").populate({
-            path: 'user',
-            populate: {
-                path: 'personalDetail'
-            }
-        })
-        res.status(200).send({ data, user });
-    } catch (err) {
-        res.status(401).send({ error: "Please authenticate using a valid token" });
-    }
-}
-
 // delete Bookingdata :
 const deleteBookingData = async (req, res) => {
     try {
@@ -98,6 +71,5 @@ module.exports = {
     BookingData,
     bookingFilterData,
     UpdateBooking,
-    decodetoken,
     deleteBookingData
 }

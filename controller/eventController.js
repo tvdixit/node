@@ -1,7 +1,6 @@
 const Event = require("../model/EventModel");
 const Event_post = require("../model/event_PostModel")
 const Like_post = require("../model/likeModel")
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 var ObjectId = require('mongodb').ObjectId;
@@ -27,9 +26,8 @@ const createEvent = async (req, res) => {
 const EventData = async (req, res) => {
     try {
         const userId = req.params.id;
-        const token = jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: '2000s' });
         const data = await Event.findById(req.params.id).populate("creator");
-        res.json({ success: true, message: "retrive data successfully", data, token })
+        res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
@@ -127,26 +125,6 @@ const Likedpost = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
-// decode token :
-const decodetoken = async (req, res, next) => {
-    const authHeader = req.header("authorization");
-    if (!authHeader) {
-        return res.status(401).send({ error: "No token provided." });
-    }
-    const [authType, token] = authHeader.split(" ");
-    if (authType !== "Bearer" || !token) {
-        return res.status(401).send({ error: "Invalid token format." });
-    }
-    try {
-        const data = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await Like_post.findOne({ _id: data.userId })
-        return res.status(200).send({ user });
-
-    } catch (err) {
-        res.status(401).send({ error: "Please authenticate using a valid token" });
-    }
-}
 // like a post using user token :
 const likebyuser = async (req, res) => {
     let post_id = req.params.id
@@ -203,7 +181,6 @@ const UserLikedpost = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // find post have how many users like :
 const PostLikedbyUser = async (req, res) => {
     try {
@@ -232,7 +209,6 @@ const AllLikedpost = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // get event_post data 
 const AllEventData = async (req, res) => {
     try {
@@ -244,7 +220,6 @@ const AllEventData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 // push liker data in post :
 const LikeDatainPost = async (req, res) => {
     try {
@@ -258,22 +233,16 @@ const LikeDatainPost = async (req, res) => {
             console.log(datalike, "datalike");
             likeData.push({ ...item._doc, likes: datalike });
         }
-
         res.status(200).json({ likeData })
     } catch (error) {
         res.json({ message: error.message })
     }
 }
 
-
-
-
-
 module.exports = {
     createEvent,
     EventData,
     UpdateEvent,
-    decodetoken,
     deleteEventData,
     // event_post Model :--
     createpost,
