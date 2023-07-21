@@ -1,19 +1,22 @@
 const dotenv = require("dotenv");
 const User = require("../model/userModel");
 dotenv.config();
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
-
 
 // User :
 const createUser = async (req, res) => {
 
     try {
+        const { files } = req;
+        const newobject = files.map((file) => file.filename);
+
         const { password } = req.body;
         const saltRounds = 10;
         bcrypt.genSalt(saltRounds, function (err, salt) {
             bcrypt.hash(password, salt, async function (err, hash) {
+
                 const userdata = new User({
+                    profile_photo: newobject,
                     first_name: req.body.first_name,
                     last_name: req.body.last_name,
                     email: req.body.email,
@@ -37,35 +40,17 @@ const UserData = async (req, res) => {
         // let getdata = req.user
         // console.log(getdata);
         // console.log(req.user.userId, "getdata");
-        const data = await User.findOne({ email: req.user.email }).populate("createdEvent").populate("personalDetail");
+        const data = await User.findOne({ _id: req.user.user_id }).populate("createdEvent").populate("personalDetail");
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
-// decode token api :
-const decodeToken = async (req, res) => {
-    const authHeader = req.header("authorization");
-    if (!authHeader) {
-        return res.status(401).send({ error: "No token provided." });
-    }
-    const [authType, token] = authHeader.split(" ");
-    if (authType !== "Bearer" || !token) {
-        return res.status(401).send({ error: "Invalid token format." });
-    }
-    try {
-        const data = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await User.findOne({ _id: data.userId })
-        res.status(200).send({ data, user });
-    } catch (err) {
-        res.status(401).send({ error: "Please authenticate using a valid token" });
-    }
-}
 // get user api using filter :
 const UserSpecificData = async (req, res) => {
     try {
-        const data = await User.findById(req.params.id, { first_name: 1, last_name: 1 }).populate("createdEvent", { title: 1 });
+        const data = await User.findOne({ _id: req.user.user_id }, { first_name: 1, last_name: 1 }).populate("createdEvent", { title: 1 });
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
@@ -82,15 +67,20 @@ const UserFilterData = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 //update User api :
 const UpdateUser = async (req, res) => {
     try {
         const updatedData = req.user
-        const data = await User.findOne({ email: updatedData.user.email })
+        // console.log(updatedData);
+        const data = await User.findOne({ _id: updatedData.user.user_id })
+
         data.set(req.body);
         const updatedUser = await data.save();
-        res.json({ data: updatedUser });
+        res.json({
+            _id: updatedUser._id,
+            first_name: updatedUser.first_name,
+            last_name: updatedUser.last_name
+        });
     } catch (error) {
         res.status(400).json({ message: error.message })
     }
@@ -98,7 +88,7 @@ const UpdateUser = async (req, res) => {
 // Delete User single Data by id api :
 const deleteUserData = async (req, res) => {
     try {
-        const data = await User.findByIdAndDelete(req.params.id);
+        const data = await User.findOneAndDelete({ _id: req.user.user_id });
         res.json({ success: true, message: "delete data successfully", data })
 
     }
@@ -137,7 +127,6 @@ const UserLookup = async (req, res) => {
 module.exports = {
     createUser,
     UserData,
-    decodeToken,
     UpdateUser,
     UserSpecificData,
     UserFilterData,

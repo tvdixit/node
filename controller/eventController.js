@@ -25,8 +25,7 @@ const createEvent = async (req, res) => {
 // get eventdata api :
 const EventData = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const data = await Event.findById(req.params.id).populate("creator");
+        const data = await Event.findOne({ creator: req.user.user_id }).populate("creator");
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
@@ -37,7 +36,7 @@ const EventData = async (req, res) => {
 const UpdateEvent = async (req, res) => {
     try {
         const updatedData = req.body
-        await Event.findOneAndUpdate({ _id: req.body._id },
+        await Event.findOne({ creator: req.user.user_id },
             updatedData).then(async (data) => {
                 var item = await Event.findById(data._id);
                 res.send(item)
@@ -50,7 +49,7 @@ const UpdateEvent = async (req, res) => {
 // delete event :
 const deleteEventData = async (req, res) => {
     try {
-        const data = await Event.findByIdAndDelete(req.params.id);
+        const data = await Event.findOneAndDelete({ creator: req.user.user_id });
         res.json({ success: true, message: "delete data successfully", data })
 
     }

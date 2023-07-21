@@ -28,6 +28,10 @@ const UserSchema = new mongoose.Schema({
     token: {
         type: String,
     },
+    profile_photo: {
+        type: Array,
+        required: true
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema)

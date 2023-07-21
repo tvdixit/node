@@ -5,12 +5,12 @@ const { Status, TaskData, UpdateTaskData, statusMatch, taskLookup, tasknelookup,
 
 router
     .post("/create/status", Status)
-    .get("/taskdata/:id", auth(), TaskData)
-    .patch("/updatestatus", UpdateTaskData)
+    .get("/taskdata", auth(), TaskData)
+    .patch("/updatestatus", auth(), UpdateTaskData)
     .get("/check/status", statusMatch)
     .get("/task/lookup", taskLookup)
     .get("/task/ne/lookup", tasknelookup)
-    .delete("/deletetask/:id", deletetaskData)
+    .delete("/deletetask", auth(), deletetaskData)
 module.exports = {
     route: router
 };

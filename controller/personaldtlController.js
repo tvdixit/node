@@ -20,7 +20,7 @@ const createDetail = async (req, res) => {
 // get personalDetail data :
 const UserpersonalData = async (req, res) => {
     try {
-        const data = await personalData.findById(req.params.id);
+        const data = await personalData.findOne({ user_id: req.user.user_id }).populate("user_id")
         res.json({ success: true, message: "retrive data successfully", data })
     }
     catch (error) {
@@ -30,12 +30,17 @@ const UserpersonalData = async (req, res) => {
 // update personal data :
 const UpdatePersonaldata = async (req, res) => {
     try {
-        const updatedData = req.body
-        await personalData.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await personalData.findById(data._id);
-                res.send(item)
-            })
+        const updatedData = req.user
+        const data = await personalData.findOne({ user_id: updatedData.user_id })
+        data.set(req.body);
+        const updatedUser = await data.save()
+        res.json({
+            _id: updatedUser._id,
+            phone: updatedUser.phone,
+            gender: updatedUser.gender,
+            age: updatedUser.age,
+            city: updatedUser.city
+        })
     }
     catch (error) {
         res.status(400).json({ message: error.message })
@@ -44,7 +49,7 @@ const UpdatePersonaldata = async (req, res) => {
 // delete personalDetail 
 const deletepersonalData = async (req, res) => {
     try {
-        const data = await User.findByIdAndDelete(req.params.id);
+        const data = await personalData.findOneAndDelete({ user_id: req.user.user_id });
         res.json({ success: true, message: "delete data successfully", data })
 
     }

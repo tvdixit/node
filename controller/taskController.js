@@ -21,7 +21,7 @@ const Status = async (req, res) => {
 //User data get:
 const TaskData = async (req, res) => {
     try {
-        const data = await UserTask.findById(req.params.id).populate("user_id").populate({
+        const data = await UserTask.findOne({ user_id: req.user.user_id }).populate("user_id").populate({
             path: 'user_id',
             populate: {
                 path: "createdEvent",
@@ -41,22 +41,21 @@ const TaskData = async (req, res) => {
 // Update UserStatus DATA :
 const UpdateTaskData = async (req, res) => {
     try {
-        const updatedData = req.body
-        await UserTask.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await UserTask.findById(data._id).populate("user_id").populate({
-                    path: 'user_id',
-                    populate: {
-                        path: "createdEvent",
-                    }
-                }).populate({
-                    path: 'user_id',
-                    populate: {
-                        path: "personalDetail",
-                    }
-                });
-                res.send(item)
-            })
+        const data = await UserTask.findOne({ user_id: req.user.user_id })
+            .populate("user_id").populate({
+                path: 'user_id',
+                populate: {
+                    path: "createdEvent",
+                }
+            }).populate({
+                path: 'user_id',
+                populate: {
+                    path: "personalDetail",
+                }
+            });
+        data.set(req.body);
+        const updatedUser = await data.save();
+        res.send({ updatedUser })
     }
     catch (error) {
         res.status(400).json({ message: error.message })
@@ -103,9 +102,8 @@ const tasknelookup = async (req, res) => {
 // delete task data :
 const deletetaskData = async (req, res) => {
     try {
-        const data = await UserTask.findByIdAndDelete(req.params.id);
+        const data = await UserTask.findOneAndDelete({ user_id: req.user.user_id });
         res.json({ success: true, message: "delete data successfully", data })
-
     }
     catch (error) {
         res.status(500).json({ message: error.message })

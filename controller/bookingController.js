@@ -20,7 +20,7 @@ const createBooking = async (req, res) => {
 // booking data
 const BookingData = async (req, res) => {
     try {
-        const data = await Booking.findById(req.params.id).populate("event").populate({
+        const data = await Booking.findOne({ user: req.user.user_id }).populate("event").populate({
             path: 'user',
             populate: {
                 path: 'personalDetail'
@@ -45,12 +45,11 @@ const bookingFilterData = async (req, res) => {
 // Update Booking api :
 const UpdateBooking = async (req, res) => {
     try {
-        const updatedData = req.body
-        await Booking.findOneAndUpdate({ _id: req.body._id },
-            updatedData).then(async (data) => {
-                var item = await Booking.findById(data._id);
-                res.send(item)
-            })
+        // const updatedData = req.body
+        const data = await Booking.findOne({ user: req.user.user_id })
+        data.set(req.body);
+        const updatedUser = await data.save();
+        res.send({ updatedUser })
     }
     catch (error) {
         res.status(400).json({ message: error.message })
@@ -59,7 +58,7 @@ const UpdateBooking = async (req, res) => {
 // delete Bookingdata :
 const deleteBookingData = async (req, res) => {
     try {
-        const data = await Booking.findByIdAndDelete(req.params.id);
+        const data = await Booking.findOneAndDelete({ user: req.user.user_id });
         res.json({ success: true, message: "delete data successfully", data })
     }
     catch (error) {

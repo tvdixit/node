@@ -17,8 +17,9 @@ const personalSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    token: {
-        type: String,
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
 });
 module.exports = mongoose.model('personal', personalSchema)

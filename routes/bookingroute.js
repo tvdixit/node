@@ -5,10 +5,10 @@ const { createBooking, BookingData, bookingFilterData, UpdateBooking, deleteBook
 
 router
     .post("/add/booking", createBooking)
-    .get("/bookingdata/:id", auth(), BookingData)
+    .get("/bookingdata", auth(), BookingData)
     .get("/bookingfilter", bookingFilterData)
-    .patch("/updateBooking", UpdateBooking)
-    .delete("/delete/:id", deleteBookingData)
+    .patch("/updateBooking", auth(), UpdateBooking)
+    .delete("/delete", auth(), deleteBookingData)
 module.exports = {
     route: router
 };

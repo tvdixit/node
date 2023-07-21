@@ -23,7 +23,8 @@ const auth = () => async (req, res, next) => {
     jwt.verify(token, process.env.SECRET_KEY, async (err, user) => {
         if (user) {
             // console.log(user, "user")
-            req.user = { user_id: user.userId, email: user.email };
+            // req.user = { user_id: user.userId, email: user.email }; ///for user
+            req.user = { user_id: user.user_id, email: user.email }; // for event 
             // console.log(req.user, "req.user");
             next();
         } else {
@@ -39,8 +40,8 @@ const auth = () => async (req, res, next) => {
 const Userlogin = async (req, res) => {
     try {
         const { email, password } = req.body
-        const token = jwt.sign({ email, password }, process.env.SECRET_KEY, { expiresIn: '20000s' });
         const users = await User.findOne({ email })
+        console.log(users);
         if (!users) {
             return res.status(401).json("invalid email or password")
         }
@@ -48,7 +49,8 @@ const Userlogin = async (req, res) => {
         if (!matchPassword) {
             res.status(400).json({ message: 'password not match Try again' })
         } else {
-            res.status(200).json({ users, token })
+            const token = jwt.sign({ user_id: users._id, email }, process.env.SECRET_KEY, { expiresIn: '20000s' });
+            res.status(200).json({ user_id: users._id, first_name: users.first_name, last_name: users.last_name, email: users.email, token })
         }
     } catch (err) {
         res.status(400).json("Error")
