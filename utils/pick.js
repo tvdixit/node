@@ -7,4 +7,4 @@ const pick = (object, keys) => {
     }, {});
 };
 
-module.exports = pick
+module.exports = pick;
