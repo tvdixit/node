@@ -9,7 +9,6 @@ const createUser = async (req, res) => {
     try {
         const { files } = req;
         const newobject = files.map((file) => file.filename);
-
         const { password } = req.body;
         const saltRounds = 10;
         bcrypt.genSalt(saltRounds, function (err, salt) {

@@ -1,9 +1,13 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const { UserValidation } = require("../validation/user_valid")
 const { auth, Userlogin, authUser } = require("../midlware/auth")
-const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController")
+const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController");
+const { validate } = require('../midlware/validate');
 
 const Upload = multer({
     storage: multer.diskStorage({
@@ -18,8 +22,9 @@ const Upload = multer({
         }
     })
 }).array('profile_photo', 5)
+
 router
-    .post("/addDetail", Upload, createUser)
+    .post("/addDetail", validate(UserValidation.createUser), Upload, createUser)
     .post("/login/user", Userlogin)
     .get("/userdata", auth(), UserData)
     .get("/userspecificData", auth(), UserSpecificData)
