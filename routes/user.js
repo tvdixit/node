@@ -5,11 +5,11 @@ const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const validate = require('../midlware/validate');
-const UserValidation = require("../validation/user_valid")
+const { userValidation } = require("../validation/user_valid")
 const { auth, Userlogin, authUser } = require("../midlware/auth")
 const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController");
 
-const Upload = multer({
+const profileUpload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
             cb(null, 'upload/image')
@@ -23,11 +23,14 @@ const Upload = multer({
     })
 }).array('profile_photo', 5)
 
+// const upload = multer({ storage: multer.memoryStorage() });
+// const profileUpload = upload.fields([{ name: "profile_photo" }]);
+
 router
     .post(
         "/addDetail",
-        Upload,
-        validate(UserValidation.createUser),
+        profileUpload,
+        validate(userValidation),
         createUser
     )
     .post("/login/user", Userlogin)

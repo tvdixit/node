@@ -14,7 +14,6 @@ const createEvent = async (req, res) => {
             price: req.body.price,
             date: req.body.date,
             creator: req.body.creator,
-            like_id: req.body.like_id
         })
         const savedDetail = await eventdata.save();
         res.status(200).json(savedDetail);
@@ -61,6 +60,12 @@ const deleteEventData = async (req, res) => {
 // create event_post
 const createpost = async (req, res) => {
     try {
+        const { event_id } = req.body;
+        const existingUser = await Event_post.findOne({ event_id });
+        if (existingUser) {
+            return res.status(409).json({ message: "event_id is already taken." });
+        }
+
         let newobject = []
         for (let i = 0; i < req.files.length; i++) {
             newobject.push(req.files[i].filename)

@@ -6,6 +6,11 @@ dotenv.config();
 // create booking detail : 
 const createBooking = async (req, res) => {
     try {
+        const { event, user } = req.body;
+        const existingUser = await Booking.findOne({ event, user });
+        if (existingUser) {
+            return res.status(409).json({ message: "event or user already taken." });
+        }
         const bookingdata = new Booking({
             event: req.body.event,
             user: req.body.user

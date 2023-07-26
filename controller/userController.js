@@ -1,32 +1,26 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const UserValidation = require("../validation/user_valid")
-
 const User = require("../model/userModel");
-const bcrypt = require("bcrypt")
-
+const bcrypt = require("bcrypt");
 
 // User :
 const createUser = async (req, res) => {
     try {
-        const { error } = UserValidation.validate(req);
-        if (error) {
-            const errorMessage = error.details.map((details) => details.message).join(", ");
-            return res.status(400).json({ message: errorMessage });
+        let newobject = []
+        for (let i = 0; i < req.files.length; i++) {
+            newobject.push(req.files[i].filename)
         }
-        const { files } = req;
-        const newobject = [];
-
-        files.forEach((file) => {
-            newobject.push(file.filename);
-        });
-
-        const { password } = req.body;
+        const { email, password } = req.body;
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email is already taken." });
+        }
         const saltRounds = 10;
         bcrypt.hash(password, saltRounds, async function (err, hash) {
             if (err) {
                 return res.status(500).json({ message: "An error occurred while hashing the password." });
             }
+
             const userdata = new User({
                 profile_photo: newobject,
                 first_name: req.body.first_name,

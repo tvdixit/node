@@ -1,3 +1,4 @@
+const { date } = require('joi/lib');
 const mongoose = require('mongoose');
 
 const EventSchema = new mongoose.Schema({

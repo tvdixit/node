@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const validate = require('../midlware/validate');
+const { eventvalidation, event_postvalidation } = require("../validation/user_valid")
 
 const { auth } = require("../midlware/auth")
 const { createEvent, EventData, UpdateEvent, deleteEventData, createpost, EventpostData, AllLikedpost, like, Likedpost, likebyuser, UserLikedpost, PostLikedbyUser, AllEventData, LikeDatainPost } = require("../controller/eventController");
@@ -23,11 +25,11 @@ router
     .post("/upload/image", Upload, async (req, res) => {
         res.status(200).send("file upload")
     })
-    .post("/event", createEvent)
+    .post("/event", validate(eventvalidation), createEvent)
     .get("/eventdata", auth(), EventData)
     .patch("/updateEvent", auth(), UpdateEvent)
     .delete("/delete", auth(), deleteEventData)
-    .post("/create/post", Upload, createpost)
+    .post("/create/post", Upload, validate(event_postvalidation), createpost)
     .get("/eventpost/detail/:id", EventpostData)
     .get("/all/likeddata", AllLikedpost)
     .post("/like", like)
