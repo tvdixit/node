@@ -5,6 +5,11 @@ dotenv.config();
 // create personaDetail : 
 const createDetail = async (req, res) => {
     try {
+        const { phone } = req.body;
+        const existingUser = await personalData.findOne({ phone });
+        if (existingUser) {
+            return res.status(409).json({ message: "phone number is already taken." });
+        }
         const data = new personalData({
             phone: req.body.phone,
             gender: req.body.gender,

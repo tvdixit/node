@@ -86,38 +86,24 @@ const createpost = async (req, res) => {
 // get event_post data 
 const EventpostData = async (req, res) => {
     try {
-        const data = await Event_post.findById(req.params.id).populate("event_id").populate({
+        const data = await Event_post.findById(req.query.id).populate("event_id").populate({
             path: 'event_id',
             populate: {
                 path: 'creator'
             }
         })
         res.json({ success: true, message: "retrive data successfully", data })
-    }
-    catch (error) {
+    } catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
 // ..Like_post Model :--
 //.. post like data :
-const like = async (req, res) => {
-    //     try {
-    //         const eventdata = new Like_post({
-    //             user_id: req.body.user_id,
-    //             like: req.body.like,
-    //             event_post_id: req.body.event_post_id
-    //         });
-    //         const savedDetail = await eventdata.save();
-    //         res.status(200).json(savedDetail);
-    //     } catch (error) {
-    //         res.status(400).json({ message: error.message });
-    //     }
-}
+
 // get like_post data :
 const Likedpost = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const data = await Like_post.findByIdAndUpdate(req.params.id).populate("user_id").populate("event_post_id").populate({
+        const data = await Like_post.findByIdAndUpdate(req.query.id).populate("user_id").populate("event_post_id").populate({
             path: 'event_post_id',
             populate: {
                 path: 'event_id'
@@ -131,19 +117,18 @@ const Likedpost = async (req, res) => {
 }
 // like a post using user token :
 const likebyuser = async (req, res) => {
-    let post_id = req.params.id
     Like_post.aggregate([{
         $match: {
             $and: [
                 { user_id: new ObjectId(req.user.user_id) },
-                { event_post_id: new ObjectId(post_id) },
+                { event_post_id: new ObjectId(req.query.id) },
             ]
         }
     }]).then((item) => {
         if (item.length === 0) {
             const eventdata = new Like_post({
                 user_id: req.user.user_id,
-                event_post_id: post_id
+                event_post_id: req.query.id
             });
             eventdata.save().then((savedDetail) => {
                 res.status(200).json(savedDetail);
@@ -154,7 +139,7 @@ const likebyuser = async (req, res) => {
             Like_post.deleteOne({
                 $and: [
                     { user_id: new ObjectId(req.user.user_id) },
-                    { event_post_id: new ObjectId(post_id) },
+                    { event_post_id: new ObjectId(req.query.id) },
                 ]
             }).then((result) => {
                 res.status(200).json({ message: "Post Unlike" });
@@ -163,22 +148,19 @@ const likebyuser = async (req, res) => {
             });
         }
     }).catch((e) => {
-        console.log("e", e.message);
         res.status(500).send("Error in like data.");
     });
 }
+
 // find user like how many posts
 const UserLikedpost = async (req, res) => {
     try {
-        const user_id = req.params.id;
-        console.log(user_id, "userId");
-        const likes = await Like_post.find({ user_id: user_id });
-        console.log(likes, "like");
+        const likes = await Like_post.find({ user_id: req.query.id });
 
-        if (likes) {
-            res.json({ success: true, data: [likes] });
-        } else {
+        if (!likes) {
             res.send("No likes found for this post.");
+        } else {
+            res.json({ success: true, data: [likes] });
         }
     }
     catch (error) {
@@ -188,7 +170,7 @@ const UserLikedpost = async (req, res) => {
 // find post have how many users like :
 const PostLikedbyUser = async (req, res) => {
     try {
-        const event_post_id = req.params.id;
+        const event_post_id = req.query.id;
         // console.log(event_post_id, "event_post_id");
         const likes = await Like_post.find({ event_post_id: event_post_id });
         // console.log(likes, "like");
@@ -228,13 +210,13 @@ const AllEventData = async (req, res) => {
 const LikeDatainPost = async (req, res) => {
     try {
         const likeData = []
-        const data = await Event_post.find({ event_id: req.params.id })
+        const data = await Event_post.find({ event_id: req.query.id })
 
         for (const item of data) {
-            console.log({ ...item }, "item");
+            // console.log({ ...item }, "item");
             // console.log(data, "data");
             const datalike = await Like_post.find({ event_post_id: item.id });
-            console.log(datalike, "datalike");
+            // console.log(datalike, "datalike");
             likeData.push({ ...item._doc, likes: datalike });
         }
         res.status(200).json({ likeData })
@@ -253,7 +235,6 @@ module.exports = {
     EventpostData,
     AllLikedpost,
     // like_post Model :--
-    like,
     Likedpost,
     likebyuser,
     UserLikedpost,

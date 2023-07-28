@@ -5,7 +5,7 @@ const router = express.Router();
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const validate = require('../midlware/validate');
-const { userValidation } = require("../validation/user_valid")
+const { userValidation } = require("../validation/user_validation")
 const { auth, Userlogin, authUser } = require("../midlware/auth")
 const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController");
 

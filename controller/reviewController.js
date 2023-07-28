@@ -1,5 +1,6 @@
 const Review = require("../model/reviewModel");
 
+
 // Post Review :
 const AddReview = async (req, res) => {
     try {
@@ -18,9 +19,9 @@ const AddReview = async (req, res) => {
 // get  review by id :
 const ReviewData = async (req, res) => {
     try {
-        const data = await Review.findById(req.params.id).populate("user_id", { first_name: 1, last_name: 1, email: 1 }).populate("event_id", { title: 1, description: 1, price: 1 })
+        const data = await Review.findById(req.query.id).populate("user_id", { first_name: 1, last_name: 1, email: 1 }).populate("event_id", { title: 1, description: 1, price: 1 })
         if (!data) {
-            return res.status(404).json({ error: 'User not found' });
+            res.status(404).json({ error: 'User not found' });
         }
         const reviews = data.reviews;
         res.json({ success: true, message: "retrive data successfully", data, reviews })

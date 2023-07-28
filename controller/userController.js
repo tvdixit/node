@@ -39,12 +39,7 @@ const createUser = async (req, res) => {
 }
 // get Userdata api:
 const UserData = async (req, res) => {
-    // req.user = { user_id: req.user.userId };
-    // console.log(req.user);
     try {
-        // let getdata = req.user
-        // console.log(getdata);
-        // console.log(req.user.userId, "getdata");
         const data = await User.findOne({ _id: req.user.user_id }).populate("createdEvent").populate("personalDetail");
         res.json({ success: true, message: "retrive data successfully", data })
     }

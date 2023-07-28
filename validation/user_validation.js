@@ -18,32 +18,7 @@ const UserValidation =
 //     personalDetail: Joi.string(),
 // });
 
-const bookingvalidation = {
-    body: Joi.object().keys({
-        event: Joi.string().required(),
-        user: Joi.string().required(),
-    })
-}
 
-const eventvalidation = {
-    body: Joi.object({
-        title: Joi.string().required(),
-        description: Joi.string().required(),
-        price: Joi.number().required(),
-        date: Joi.date().required(),
-        creator: Joi.string().required(),
-    })
-}
-
-const event_postvalidation = Joi.object({
-    image: Joi.string().required(),
-    created_date: Joi.date().required(),
-    event_id: Joi.number().integer().required()
-});
 module.exports = {
     UserValidation,
-    bookingvalidation,
-    eventvalidation,
-    event_postvalidation
-
 };
