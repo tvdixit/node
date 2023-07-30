@@ -53,7 +53,7 @@ const Userlogin = async (req, res) => {
             res.status(200).json({ user_id: users._id, first_name: users.first_name, last_name: users.last_name, email: users.email, token })
         }
     } catch (err) {
-        res.status(400).json("Error")
+        res.status(400).json({ message: "Error" });
         console.log(err);
     }
 };

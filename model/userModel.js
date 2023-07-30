@@ -4,18 +4,22 @@ const UserSchema = new mongoose.Schema({
     first_name: {
         type: String,
         required: true,
+        minlength: 4,
     },
     last_name: {
         type: String,
         required: true,
+        minlength: 4,
     },
     email: {
         type: String,
         required: true,
+        minlength: 6,
     },
     password: {
         type: String,
         required: true,
+        minlength: 6,
     },
     createdEvent: {
         type: mongoose.Schema.Types.ObjectId,

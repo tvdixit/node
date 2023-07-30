@@ -8,6 +8,18 @@ const status_validation = Joi.object({
     user_id: Joi.string().required(),
 });
 
+const useridvalidation = {
+    body: Joi.object({
+        user_id: Joi.string().required(),
+    })
+}
+const statusMatchvalidation = {
+    body: Joi.object({
+        status: Joi.string().valid('pending', 'completed', 'in-progress').required(),
+    })
+}
 module.exports = {
     status_validation,
+    useridvalidation,
+    statusMatchvalidation
 }

@@ -4,39 +4,91 @@ const User = require("../model/userModel");
 const bcrypt = require("bcrypt");
 
 // User :
+// const createUser = async (req, res) => {
+//     try {
+//         if (!req.body.first_name || !req.body.last_name || !req.body.email || !req.body.password) {
+//             return res.status(400).json({ message: "Please provide first_name, last_name, email and  password" });
+//         }
+
+//         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//         if (!emailPattern.test(req.body.email)) {
+//             return res.status(400).json({ message: "Please provide a valid email address." });
+//         }
+
+//         let newobject = []
+//         for (let i = 0; i < req.files.length; i++) {
+//             newobject.push(req.files[i].filename)
+//         }
+//         const { email, password } = req.body;
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(409).json({ message: "Email is already taken." });
+//         }
+//         const saltRounds = 10;
+//         bcrypt.hash(password, saltRounds, async function (err, hash) {
+//             if (err) {
+//                 return res.status(500).json({ message: "An error occurred while hashing the password." });
+//             }
+//             const userdata = new User({
+//                 profile_photo: newobject,
+//                 first_name: req.body.first_name,
+//                 last_name: req.body.last_name,
+//                 email: req.body.email,
+//                 password: hash,
+//                 createdEvent: req.body.createdEvent,
+//                 personalDetail: req.body.personalDetail,
+//             })
+//             const savedDetail = await userdata.save();
+//             res.status(200).json({ savedDetail });
+//         });
+
+//     } catch (error) {
+//         res.status(400).json({ message: error.message });
+//     }
+// }
+
+
+
 const createUser = async (req, res) => {
     try {
-        let newobject = []
-        for (let i = 0; i < req.files.length; i++) {
-            newobject.push(req.files[i].filename)
+        const { first_name, last_name, email, password } = req.body;
+
+        // if (!req.files || !req.files[0] || !req.files[0].filename || !first_name || !last_name || !email || !password) {
+        //     return res.status(400).json({ message: "Please provide profile_photo, first_name, last_name, email, and password." });
+        // }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            return res.status(400).json({ message: "Please provide a valid email address." });
         }
-        const { email, password } = req.body;
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ message: "Email is already taken." });
         }
-        const saltRounds = 10;
-        bcrypt.hash(password, saltRounds, async function (err, hash) {
-            if (err) {
-                return res.status(500).json({ message: "An error occurred while hashing the password." });
-            }
 
-            const userdata = new User({
-                profile_photo: newobject,
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                email: req.body.email,
-                password: hash,
-                createdEvent: req.body.createdEvent,
-                personalDetail: req.body.personalDetail,
-            })
-            const savedDetail = await userdata.save();
-            res.status(200).json({ savedDetail });
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const userdata = new User({
+            profile_photo: req.files[0].filename,
+            first_name,
+            last_name,
+            email,
+            password: hashedPassword,
+            createdEvent: req.body.createdEvent,
+            personalDetail: req.body.personalDetail,
         });
+        // console.log(newobject, "obj");
+        const savedDetail = await userdata.save();
+        res.status(200).json({ savedDetail });
+
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: "An error occurred while processing the request." });
     }
 }
+
+
 // get Userdata api:
 const UserData = async (req, res) => {
     try {
