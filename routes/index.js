@@ -4,6 +4,7 @@ const createBooking = require("./bookingroute");
 const UserpersonalData = require("./personaldetailroute");
 const UserTask = require("./taskroute");
 const Review = require("./reviewroute");
+const Order = require("./orderroute");
 
 
 module.exports = {
@@ -13,4 +14,5 @@ module.exports = {
     UserpersonalData,
     UserTask,
     Review,
+    Order
 };

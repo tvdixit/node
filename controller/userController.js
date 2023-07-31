@@ -61,6 +61,10 @@ const createUser = async (req, res) => {
         if (!emailPattern.test(email)) {
             return res.status(400).json({ message: "Please provide a valid email address." });
         }
+        const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/;
+        if (!passwordPattern.test(password)) {
+            return res.status(400).json({ message: "Please provide a valid email address." });
+        }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {

@@ -6,11 +6,18 @@ const bookingvalidation = {
         user: Joi.string().required(),
     })
 }
+// const useridvalidation = {
+//     body: Joi.object({
+//         user_id: Joi.number().required(),
+//     })
+// }
+
 const useridvalidation = {
-    headers: Joi.object({
-        user_id: Joi.string().length(24).hex().required(),
+    user: Joi.object().keys({
+        email: Joi.number().required()
     })
 }
+
 const UpdatebookingValidation = {
     body: Joi.object({
         event: Joi.string().required(),

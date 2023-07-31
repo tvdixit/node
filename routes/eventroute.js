@@ -35,7 +35,7 @@ router
     .post("/like", auth(), validate(idSchema), likebyuser)
     .get("/user/liked", validate(idSchema), UserLikedpost)
     .get("/likedpost", validate(idSchema), PostLikedbyUser)
-    .get("/all/postdata", AllEventData, AllLikedpost)
+    .get("/all/postdata", AllEventData)
     .get("/post/like/data", validate(idSchema), LikeDatainPost)
 module.exports = {
     route: router

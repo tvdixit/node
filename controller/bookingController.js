@@ -25,6 +25,7 @@ const createBooking = async (req, res) => {
 // booking data
 const BookingData = async (req, res) => {
     try {
+        console.log(req.user.user_id, "req.user.user_id");
         const data = await Booking.findOne({ user: req.user.user_id }).populate("event").populate({
             path: 'user',
             populate: {

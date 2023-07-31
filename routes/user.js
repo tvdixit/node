@@ -27,44 +27,16 @@ const profileUpload = multer({
 // const profileUpload = upload.fields([{ name: "profile_photo" }]);
 
 router
-    .post("/addDetail",
-        profileUpload,
-        validate(CreateUserValidation),
-        createUser
-    )
-    .post("/login/user",
-        validate(loginUserValidation),
-        Userlogin
-    )
-    .get("/userdata",
-        auth(),
-        validate(useridvalidation),
-        UserData
-    )
-    .get("/userspecificData",
-        auth(),
-        validate(useridvalidation),
-        UserSpecificData
-    )
-    .get("/userFilter",
-        UserFilterData
-    )
-    .patch("/updateUser",
-        authUser(),
-        validate(UpdateUserValidation),
-        UpdateUser
-    )
-    .delete("/deleteUser",
-        auth(),
-        validate(useridvalidation),
-        deleteUserData
-    )
-    .get("/aggregate/matchuser",
-        UserMatch
-    )
-    .get("/lookup",
-        UserLookup
-    )
+    .post("/addDetail", profileUpload, validate(CreateUserValidation), createUser)
+    .post("/login/user", validate(loginUserValidation), Userlogin)
+    .get("/userdata", auth(), validate(useridvalidation), UserData)
+    .get("/userspecificData", auth(), validate(useridvalidation), UserSpecificData)
+    .get("/userFilter", UserFilterData)
+    .patch("/updateUser", authUser(), validate(UpdateUserValidation), UpdateUser)
+    .delete("/deleteUser", auth(), validate(useridvalidation), deleteUserData)
+    .get("/aggregate/matchuser", UserMatch)
+    .get("/lookup", UserLookup)
+
 module.exports = {
     route: router
 };

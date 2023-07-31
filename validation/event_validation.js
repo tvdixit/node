@@ -30,8 +30,8 @@ const idSchema = {
     })
 }
 const useridvalidation = {
-    headers: Joi.object({
-        user_id: Joi.string().length(24).hex().required(),
+    user: Joi.object({
+        user_id: Joi.string().required(),
     })
 }
 module.exports = {
