@@ -6,7 +6,7 @@ const Order = require("../model/orderModel");
 const order = async (req, res) => {
     try {
         // console.log(req.body, "body");
-        console.log(req.body.shipment_order[0].address, "================>>>>>>>>>>>>>>");
+        // console.log(req.body.shipment_order[0].address, "================>>>>>>>>>>>>>>");
         const orderdata = new Order({
             quantity: req.body.quantity,
             total_price: req.body.total_price,
@@ -47,7 +47,7 @@ const order = async (req, res) => {
     }
 }
 
-// get orderdata
+// get orderdata :
 const OrderData = async (req, res) => {
     try {
         const data = await Order.findById(req.query.id);
@@ -59,7 +59,7 @@ const OrderData = async (req, res) => {
     }
 }
 
-//update orderdata
+//update orderdata :
 const Updateorderdata = async (req, res) => {
     try {
         const updatedData = req.body
@@ -73,10 +73,13 @@ const Updateorderdata = async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 }
-
+//delete orderdata api :
 const deleteorderData = async (req, res) => {
     try {
-        const data = await Order.findOneAndDelete(req.params.id);
+        const data = await Order.findByIdAndDelete(req.query.id);
+        if (!data) {
+            return res.status(404).json({ success: false, message: 'Data not found' });
+        }
         res.json({ success: true, message: "delete data successfully", data })
 
     }

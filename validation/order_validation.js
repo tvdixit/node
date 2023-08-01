@@ -46,7 +46,7 @@ const updateOrdervalidation = {
         order_number: Joi.string().required(),
         additional_info: Joi.string(),
         order_status: Joi.string().required(),
-        shipment_order: Joi.array().items(Joi.object({
+        shipment_order: Joi.array().items(Joi.object().keys({
             address: Joi.string().required(),
             arrival_time: Joi.date().required(),
             statusCode: Joi.string().required(),
@@ -55,8 +55,8 @@ const updateOrdervalidation = {
             value: Joi.number(),
             color: Joi.string(),
             bgcolor: Joi.string(),
-        })).required(),
-        product: Joi.array().items(Joi.object({
+        })),
+        product: Joi.array().items(Joi.object().keys({
             product_id: Joi.string().required(),
             product_name: Joi.string().required(),
             product_price: Joi.number().required(),
@@ -64,7 +64,7 @@ const updateOrdervalidation = {
             product_discript: Joi.string(),
             product_unit: Joi.string().required(),
             product_quantity: Joi.number().required(),
-        })).required(),
+        })),
     })
 }
 module.exports = {
