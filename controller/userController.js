@@ -1,7 +1,11 @@
 const dotenv = require("dotenv");
 dotenv.config();
+// const fileUpload = require('express-fileupload');
+// app.use(fileUpload());
+
 const User = require("../model/userModel");
 const bcrypt = require("bcrypt");
+// const formidable = require('formidable');
 
 // User :
 // const createUser = async (req, res) => {
@@ -50,20 +54,19 @@ const bcrypt = require("bcrypt");
 
 
 const createUser = async (req, res) => {
-    try {
-        const { first_name, last_name, email, password } = req.body;
+    console.log(req.body, "body");
+    console.log(req.profile_photo, "photo")
 
-        // if (!req.files || !req.files[0] || !req.files[0].filename || !first_name || !last_name || !email || !password) {
-        //     return res.status(400).json({ message: "Please provide profile_photo, first_name, last_name, email, and password." });
-        // }
+    try {
+        const { profile_photo, first_name, last_name, email, password } = req.body;
 
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(email)) {
             return res.status(400).json({ message: "Please provide a valid email address." });
         }
-        const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/;
+        const passwordPattern = /^[a-zA-Z0-9!@#$%^&*]{6,16}$/;
         if (!passwordPattern.test(password)) {
-            return res.status(400).json({ message: "Please provide a valid email address." });
+            return res.status(400).json({ message: "Please provide a valid password." });
         }
 
         const existingUser = await User.findOne({ email });
@@ -73,9 +76,12 @@ const createUser = async (req, res) => {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
+        console.log(first_name, last_name, email, password);
+        console.log(req);
 
+        console.log(req.file, "profile");
         const userdata = new User({
-            profile_photo: req.files[0].filename,
+            profile_photo, //req.files[0].filename,
             first_name,
             last_name,
             email,
@@ -84,6 +90,10 @@ const createUser = async (req, res) => {
             personalDetail: req.body.personalDetail,
         });
         // console.log(newobject, "obj");
+
+        console.log(req.body)
+
+        console.log(userdata, "userdata");
         const savedDetail = await userdata.save();
         res.status(200).json({ savedDetail });
 

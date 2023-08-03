@@ -1,11 +1,20 @@
 const express = require("express");
 const dbconnect = require("./config/db");
 dbconnect();
-
+const fileUpload = require('express-fileupload');
 const app = express();
-app.use(express.json());
+app.use(fileUpload());
 
-const { createUser, createEvent, createBooking, UserpersonalData, UserTask, Review, Order } = require("./routes/index.js")
+app.use(express.json());
+const bodyParser = require('body-parser');
+
+app.set('view engine', 'ejs');
+app.set('views', './view');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+const { createUser, createEvent, createBooking, UserpersonalData, UserTask, Review, Order, Home } = require("./routes/index.js")
 
 app.use("/user", createUser.route);
 app.use("/event", createEvent.route);
@@ -14,6 +23,7 @@ app.use("/personal", UserpersonalData.route);
 app.use("/task", UserTask.route);
 app.use("/review", Review.route);
 app.use("/order", Order.route);
+app.use("/home", Home.route);
 
 
 require('dotenv').config();

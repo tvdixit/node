@@ -21,7 +21,7 @@ const auth = () => async (req, res, next) => {
     }
     const token = headerToken && headerToken.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, async (err, user) => {
-        console.log(typeof (user.user_id));
+        // console.log(typeof (user.user_id));
         if (user) {
             // console.log(user, "user")
             // req.user = { user_id: user.userId, email: user.email }; ///for user

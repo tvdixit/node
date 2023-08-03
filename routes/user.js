@@ -9,6 +9,7 @@ const { CreateUserValidation, UpdateUserValidation, loginUserValidation, useridv
 const { auth, Userlogin, authUser } = require("../midlware/auth")
 const { createUser, UserData, UpdateUser, UserSpecificData, UserFilterData, deleteUserData, UserMatch, UserLookup } = require("../controller/userController");
 
+
 const profileUpload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
@@ -36,7 +37,6 @@ router
     .delete("/deleteUser", auth(), validate(useridvalidation), deleteUserData)
     .get("/aggregate/matchuser", UserMatch)
     .get("/lookup", UserLookup)
-
 module.exports = {
     route: router
 };
